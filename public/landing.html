@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeniLani AI - Enterprise AI Chatbot Solutions</title>
+    <script>
+        // Force scroll to top on page load
+        window.addEventListener('beforeunload', function () {
+            window.scrollTo(0, 0);
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+            }, 0);
+        });
+    </script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --accent-primary: #0ea5e9;
+            --accent-secondary: #06b6d4;
+            --card-bg: #ffffff;
+            --border-color: #e9ecef;
+            --shadow-light: rgba(0,0,0,0.1);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --shadow-dark: rgba(0,0,0,0.25);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-primary: #38bdf8;
+            --accent-secondary: #0ea5e9;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --shadow-light: rgba(0,0,0,0.3);
+            --shadow-medium: rgba(0,0,0,0.4);
+            --shadow-dark: rgba(0,0,0,0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--accent-primary);
+            border-radius: 30px;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--accent-primary);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px var(--shadow-light);
+        }
+        
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px var(--shadow-medium);
+        }
+        
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(30, 41, 59, 0.95);
+            color: var(--accent-primary);
+        }
+        
+        .theme-icon {
+            font-size: 20px;
+        }
+        
+        .hero {
+            background-image: url('/hero-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            min-height: 700px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.5) 0%, rgba(6, 182, 212, 0.5) 100%);
+            z-index: 1;
+        }
+        
+        .hero .container {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-subtitle {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #f0f9ff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            font-weight: 500;
+        }
+        
+        .hero-description {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+            font-weight: 400;
+            line-height: 1.6;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 18px 40px;
+            background: #ffffff;
+            color: #0284c7;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 10px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            background: #fef3c7;
+        }
+        
+        .cta-button.secondary {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #ffffff;
+            color: #0284c7;
+            backdrop-filter: blur(10px);
+        }
+        
+        .cta-button.secondary:hover {
+            background: #ffffff;
+            transform: translateY(-3px);
+        }
+        
+        .section {
+            padding: 80px 20px;
+            background: var(--bg-primary);
+            transition: background-color 0.3s ease;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--accent-primary);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 50px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .tech-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px var(--shadow-light);
+            transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+            border: 1px solid var(--border-color);
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--shadow-medium);
+        }
+        
+        .tech-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .tech-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--accent-primary);
+        }
+        
+        .tech-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px var(--shadow-light);
+            border: 1px solid var(--border-color);
+        }
+        
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-size: 18px;
+        }
+        
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .check {
+            color: #10b981;
+            font-size: 24px;
+        }
+        
+        .cross {
+            color: #ef4444;
+            font-size: 24px;
+        }
+        
+        .pricing-section {
+            background: var(--bg-secondary);
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .pricing-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+            border: 1px solid var(--border-color);
+            position: relative;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        
+        .pricing-card.featured {
+            border: 3px solid #0ea5e9;
+            transform: scale(1.05);
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-5px);
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0ea5e9;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .pricing-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .pricing-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 10px;
+        }
+        
+        .pricing-period {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .pricing-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+        
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .pricing-features .check-icon {
+            color: #10b981;
+            margin-right: 10px;
+        }
+        
+        .expertise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .expertise-item {
+            text-align: center;
+        }
+        
+        .expertise-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .expertise-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #0ea5e9;
+        }
+        
+        .expertise-description {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .api-calculator {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px var(--shadow-light);
+            max-width: 600px;
+            margin: 40px auto;
+            border: 1px solid var(--border-color);
+        }
+        
+        .calculator-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--accent-primary);
+        }
+        
+        .calculator-input {
+            margin-bottom: 20px;
+        }
+        
+        .calculator-input label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+        
+        .calculator-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .calculator-input input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .calculator-result {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--accent-primary);
+        }
+        
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            margin-bottom: 20px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+        }
+        
+        .demo-iframe {
+            width: 100%;
+            height: 80vh;
+            max-height: 800px;
+            min-height: 500px;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+            
+            .hero-subtitle {
+                font-size: 20px;
+            }
+            
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-card.featured {
+                transform: none;
+            }
+            
+            .demo-iframe {
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+        <span id="themeText">Dark</span>
+    </button>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>LeniLani AI</h1>
+            <p class="hero-subtitle">Enterprise-Grade AI Chatbot Solutions That Convert</p>
+            <p class="hero-description">
+                Experience the power of advanced AI consultation and intelligent lead capture. 
+                Unlike basic chatbots, LeniLani AI demonstrates deep domain expertise, qualifies prospects, 
+                and drives real business outcomes.
+            </p>
+            <a href="#pricing" class="cta-button">Build Your AI Assistant - $1,000</a>
+            <a href="#demo" class="cta-button secondary">Try Live Demo</a>
+        </div>
+    </section>
+
+    <!-- Technology Stack Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Powered by Cutting-Edge Technology</h2>
+            <p class="section-subtitle">
+                We leverage the most advanced AI technologies to deliver intelligent, context-aware conversations 
+                that go far beyond simple scripted responses.
+            </p>
+            
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div class="tech-icon">🧠</div>
+                    <div class="tech-name">Anthropic Claude</div>
+                    <div class="tech-description">
+                        State-of-the-art language model providing human-like understanding and responses with 
+                        superior reasoning capabilities.
+                    </div>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">🔗</div>
+                    <div class="tech-name">LangChain</div>
+                    <div class="tech-description">
+                        Advanced framework for building sophisticated AI applications with memory, 
+                        context management, and tool integration.
+                    </div>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">💾</div>
+                    <div class="tech-name">Conversation Memory</div>
+                    <div class="tech-description">
+                        Persistent context retention throughout conversations, enabling meaningful 
+                        multi-turn dialogues and relationship building.
+                    </div>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">📊</div>
+                    <div class="tech-name">Lead Scoring Engine</div>
+                    <div class="tech-description">
+                        Intelligent prospect qualification system that scores leads based on budget, 
+                        authority, need, and timeline.
+                    </div>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">🎯</div>
+                    <div class="tech-name">Custom Training</div>
+                    <div class="tech-description">
+                        Tailored AI personality and knowledge base specific to your business, 
+                        products, and services.
+                    </div>
+                </div>
+                
+                <div class="tech-card">
+                    <div class="tech-icon">🔒</div>
+                    <div class="tech-name">Enterprise Security</div>
+                    <div class="tech-description">
+                        Secure API implementation with encrypted communications and compliance-ready 
+                        data handling.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section class="section" style="background: #f8f9fa;">
+        <div class="container">
+            <h2 class="section-title">LeniLani AI vs. Basic Chatbots</h2>
+            <p class="section-subtitle">
+                See why businesses choose our advanced AI solution over traditional chatbot platforms
+            </p>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Basic Chatbots</th>
+                            <th>LeniLani AI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Conversation Quality</strong></td>
+                            <td>Scripted, repetitive responses</td>
+                            <td>Dynamic, context-aware dialogue</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Understanding</strong></td>
+                            <td>Keyword matching only</td>
+                            <td>Deep semantic understanding with Claude AI</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Memory</strong></td>
+                            <td>No conversation history</td>
+                            <td>Full conversation memory & context retention</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lead Qualification</strong></td>
+                            <td>Basic form collection</td>
+                            <td>Intelligent scoring & progressive profiling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Technical Expertise</strong></td>
+                            <td><span class="cross">✗</span> Generic responses</td>
+                            <td><span class="check">✓</span> Deep domain knowledge</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ROI Calculations</strong></td>
+                            <td><span class="cross">✗</span> Not available</td>
+                            <td><span class="check">✓</span> Real-time business value analysis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Code Examples</strong></td>
+                            <td><span class="cross">✗</span> Cannot provide</td>
+                            <td><span class="check">✓</span> Working code demonstrations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Personalization</strong></td>
+                            <td>Limited to name insertion</td>
+                            <td>Full conversation adaptation based on context</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complex Queries</strong></td>
+                            <td><span class="cross">✗</span> Falls back to human</td>
+                            <td><span class="check">✓</span> Handles sophisticated technical discussions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Business Intelligence</strong></td>
+                            <td><span class="cross">✗</span> Basic metrics only</td>
+                            <td><span class="check">✓</span> Advanced lead insights & scoring</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expertise Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Our Domain Expertise</h2>
+            <p class="section-subtitle">
+                LeniLani Consulting brings deep technical and business expertise to every AI implementation
+            </p>
+            
+            <div class="expertise-grid">
+                <div class="expertise-item">
+                    <div class="expertise-icon">🤖</div>
+                    <div class="expertise-title">AI & Machine Learning</div>
+                    <div class="expertise-description">
+                        Expert implementation of LLMs, RAG systems, fine-tuning, and multi-agent architectures. 
+                        We've deployed AI solutions that have automated 60%+ of customer interactions.
+                    </div>
+                </div>
+                
+                <div class="expertise-item">
+                    <div class="expertise-icon">📈</div>
+                    <div class="expertise-title">Data Science</div>
+                    <div class="expertise-description">
+                        Advanced analytics with Python, pandas, scikit-learn, and TensorFlow. 
+                        Our data solutions have uncovered millions in revenue opportunities for clients.
+                    </div>
+                </div>
+                
+                <div class="expertise-item">
+                    <div class="expertise-icon">💼</div>
+                    <div class="expertise-title">Business Strategy</div>
+                    <div class="expertise-description">
+                        Fractional CTO services with strategic technology roadmapping. 
+                        We align AI initiatives with business objectives for maximum ROI.
+                    </div>
+                </div>
+                
+                <div class="expertise-item">
+                    <div class="expertise-icon">🚀</div>
+                    <div class="expertise-title">Digital Transformation</div>
+                    <div class="expertise-description">
+                        End-to-end digital modernization from legacy systems to cloud-native AI platforms. 
+                        Proven track record of successful enterprise transformations.
+                    </div>
+                </div>
+                
+                <div class="expertise-item">
+                    <div class="expertise-icon">🔧</div>
+                    <div class="expertise-title">Integration Excellence</div>
+                    <div class="expertise-description">
+                        Seamless integration with HubSpot, Salesforce, Slack, and 100+ platforms. 
+                        Your AI assistant becomes part of your existing workflow.
+                    </div>
+                </div>
+                
+                <div class="expertise-item">
+                    <div class="expertise-icon">📱</div>
+                    <div class="expertise-title">Omnichannel Deployment</div>
+                    <div class="expertise-description">
+                        Deploy across web, mobile, SMS, WhatsApp, and voice channels. 
+                        One AI brain, unlimited touchpoints with your customers.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="section pricing-section" id="pricing">
+        <div class="container">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <p class="section-subtitle">
+                Get started with a one-time setup fee and predictable monthly API costs
+            </p>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3 class="pricing-title">Setup & Development</h3>
+                    <div class="pricing-price">$1,000</div>
+                    <div class="pricing-period">One-time fee</div>
+                    <ul class="pricing-features">
+                        <li><span class="check-icon">✓</span> Custom AI personality design</li>
+                        <li><span class="check-icon">✓</span> Business knowledge training</li>
+                        <li><span class="check-icon">✓</span> Lead qualification logic</li>
+                        <li><span class="check-icon">✓</span> Integration setup</li>
+                        <li><span class="check-icon">✓</span> Custom branding & UI</li>
+                        <li><span class="check-icon">✓</span> Testing & optimization</li>
+                        <li><span class="check-icon">✓</span> 30-day support included</li>
+                    </ul>
+                    <a href="https://406lzi.share-na2.hsforms.com/2ow2FfNXjQbyPqX6cu29a9g" target="_blank" class="cta-button" style="width: 100%; text-align: center; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white;">Get Started</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">MOST POPULAR</div>
+                    <h3 class="pricing-title">Monthly API Usage</h3>
+                    <div class="pricing-price">$65</div>
+                    <div class="pricing-period">Estimated monthly</div>
+                    <ul class="pricing-features">
+                        <li><span class="check-icon">✓</span> ~10,000 messages/month</li>
+                        <li><span class="check-icon">✓</span> Anthropic Claude API access</li>
+                        <li><span class="check-icon">✓</span> 30% markup on API costs</li>
+                        <li><span class="check-icon">✓</span> Usage monitoring dashboard</li>
+                        <li><span class="check-icon">✓</span> Automatic scaling</li>
+                        <li><span class="check-icon">✓</span> No hidden fees</li>
+                        <li><span class="check-icon">✓</span> Cancel anytime</li>
+                    </ul>
+                    <a href="#calculator" class="cta-button" style="width: 100%; text-align: center; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white;">Calculate Your Costs</a>
+                </div>
+            </div>
+            
+            <!-- API Cost Calculator -->
+            <div class="api-calculator" id="calculator">
+                <h3 class="calculator-title">API Cost Calculator</h3>
+                <p style="margin-bottom: 20px; color: var(--text-secondary);">
+                    Estimate your monthly costs based on expected usage
+                </p>
+                
+                <div class="calculator-input">
+                    <label for="messages">Estimated messages per month:</label>
+                    <input type="number" id="messages" value="10000" min="100" max="1000000">
+                </div>
+                
+                <div class="calculator-input">
+                    <label for="avgLength">Average message length (words):</label>
+                    <input type="number" id="avgLength" value="50" min="10" max="500">
+                </div>
+                
+                <div class="calculator-result">
+                    <div class="result-item">
+                        <span>Base API Cost (Claude Haiku):</span>
+                        <span id="baseCost">$50.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Service Markup (30%):</span>
+                        <span id="markup">$15.00</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Total Monthly Cost:</span>
+                        <span id="totalCost">$65.00</span>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 20px; font-size: 12px; color: var(--text-secondary);">
+                    * Costs based on Anthropic Claude Haiku pricing: $0.25 per million input tokens, $1.25 per million output tokens.
+                    Average conversation assumes 1:1 input/output ratio. Actual costs may vary based on usage patterns.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Demo Section -->
+    <section class="section" id="demo">
+        <div class="container">
+            <h2 class="section-title">Experience LeniLani AI Live</h2>
+            <p class="section-subtitle">
+                Try our AI consultant below and see the difference intelligent conversation makes
+            </p>
+            
+            <iframe src="/chat" class="demo-iframe"></iframe>
+            
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="#pricing" class="cta-button" style="background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white;">Build Your Own AI Assistant</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section" style="background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white;">
+        <div class="container" style="text-align: center;">
+            <h2 style="font-size: 36px; margin-bottom: 20px;">Ready to Transform Your Customer Engagement?</h2>
+            <p style="font-size: 20px; margin-bottom: 40px; opacity: 0.95;">
+                Join forward-thinking businesses using AI to capture more leads, 
+                qualify prospects intelligently, and deliver exceptional customer experiences.
+            </p>
+            <div>
+                <a href="https://406lzi.share-na2.hsforms.com/2ow2FfNXjQbyPqX6cu29a9g" target="_blank" class="cta-button">Start Your AI Journey - $1,000</a>
+                <a href="tel:+18156416689" class="cta-button secondary">Call Us: (815) 641-6689</a>
+            </div>
+            
+            <div style="margin-top: 60px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <h3 style="font-size: 24px; margin-bottom: 20px;">What You Get for $1,000:</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto; text-align: left;">
+                    <div>✓ Full AI chatbot deployment</div>
+                    <div>✓ Custom personality & training</div>
+                    <div>✓ Lead qualification system</div>
+                    <div>✓ Website integration</div>
+                    <div>✓ 30 days of support</div>
+                    <div>✓ Usage analytics dashboard</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">LeniLani Consulting</div>
+            <p style="opacity: 0.7; margin-top: 20px;">
+                © 2025 LeniLani Consulting. Honolulu, Hawaii. All rights reserved.
+            </p>
+            <p style="opacity: 0.5; margin-top: 10px; font-size: 14px;">
+                1050 Queen Street, Suite 100, Honolulu, HI 96814
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+        
+        function updateThemeToggle(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            
+            if (theme === 'dark') {
+                icon.textContent = '☀️';
+                text.textContent = 'Light';
+            } else {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark';
+            }
+        }
+        
+        // Initialize theme on page load
+        initTheme();
+        
+        // API Cost Calculator
+        function calculateCosts() {
+            const messages = parseInt(document.getElementById('messages').value) || 10000;
+            const avgLength = parseInt(document.getElementById('avgLength').value) || 50;
+            
+            // Estimate tokens (roughly 1.3 tokens per word)
+            const tokensPerMessage = avgLength * 1.3;
+            const totalTokens = messages * tokensPerMessage * 2; // x2 for input + output
+            
+            // Claude Haiku pricing
+            const inputCostPerMillion = 0.25;
+            const outputCostPerMillion = 1.25;
+            
+            // Calculate base cost (assuming 50/50 input/output split)
+            const inputTokens = totalTokens / 2;
+            const outputTokens = totalTokens / 2;
+            
+            const inputCost = (inputTokens / 1000000) * inputCostPerMillion;
+            const outputCost = (outputTokens / 1000000) * outputCostPerMillion;
+            const baseCost = inputCost + outputCost;
+            
+            // Apply 30% markup
+            const markupAmount = baseCost * 0.30;
+            const totalCost = baseCost + markupAmount;
+            
+            // Update display
+            document.getElementById('baseCost').textContent = `$${baseCost.toFixed(2)}`;
+            document.getElementById('markup').textContent = `$${markupAmount.toFixed(2)}`;
+            document.getElementById('totalCost').textContent = `$${totalCost.toFixed(2)}`;
+        }
+        
+        // Add event listeners
+        document.getElementById('messages').addEventListener('input', calculateCosts);
+        document.getElementById('avgLength').addEventListener('input', calculateCosts);
+        
+        // Initial calculation
+        calculateCosts();
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Ensure page loads at top
+        window.onload = function() {
+            window.scrollTo(0, 0);
+        };
+        
+        // Also handle browser back button
+        window.onpageshow = function(event) {
+            if (event.persisted) {
+                window.scrollTo(0, 0);
+            }
+        };
+    </script>
+</body>
+</html>
