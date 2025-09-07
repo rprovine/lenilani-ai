@@ -539,6 +539,62 @@
             .demo-iframe {
                 height: 600px;
             }
+            
+            /* Mobile table responsiveness */
+            .comparison-table {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .comparison-table table {
+                min-width: 500px;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .comparison-table th {
+                font-size: 14px;
+                padding: 15px 10px;
+            }
+            
+            .comparison-table td:first-child {
+                font-weight: 600;
+                white-space: nowrap;
+            }
+            
+            /* Add scroll indicator */
+            .comparison-table::after {
+                content: '← Scroll →';
+                display: block;
+                text-align: center;
+                padding: 10px;
+                color: var(--text-secondary);
+                font-size: 12px;
+                background: var(--card-bg);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* Even smaller screens */
+            .comparison-table table {
+                min-width: 450px;
+                font-size: 13px;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px 8px;
+                font-size: 13px;
+            }
+            
+            .check,
+            .cross {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
