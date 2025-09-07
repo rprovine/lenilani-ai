@@ -128,6 +128,15 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/landing.html');
 });
 
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    apiKeySet: !!process.env.ANTHROPIC_API_KEY,
+    nodeEnv: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get('/chat', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
