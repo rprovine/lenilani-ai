@@ -1,6 +1,12 @@
-# LeniLani AI - Enterprise AI Chatbot Solution
+# LeniLani AI - Intelligent Business Consultation Chatbot
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-ai--bot--special.lenilani.com-blue)](https://ai-bot-special.lenilani.com)
+[![Powered by Claude](https://img.shields.io/badge/Powered%20by-Claude%20AI-orange)](https://www.anthropic.com)
+[![Built with LangChain](https://img.shields.io/badge/Built%20with-LangChain-green)](https://www.langchain.com)
 
 An advanced AI-powered chatbot and lead qualification system built for LeniLani Consulting. Features intelligent conversation management, lead scoring, and business consultation capabilities powered by Anthropic's Claude AI.
+
+**Live Demo**: [https://ai-bot-special.lenilani.com](https://ai-bot-special.lenilani.com)
 
 ## 🌟 Features
 
@@ -24,8 +30,8 @@ An advanced AI-powered chatbot and lead qualification system built for LeniLani 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/[your-username]/lenilani-ai.git
-cd lenilani-ai
+git clone https://github.com/rprovine/lenilani-ai.git
+cd langchain-chatbot-lenilani
 ```
 
 2. Install dependencies:
@@ -58,16 +64,23 @@ Visit `http://localhost:3000` to see the landing page.
 ## 📁 Project Structure
 
 ```
-lenilani-ai/
+langchain-chatbot-lenilani/
 ├── index.js              # Main server file with Express and LangChain setup
 ├── public/
 │   ├── landing.html      # Marketing landing page
 │   ├── index.html        # Chatbot interface
-│   └── hero-bg.png       # Hero section background image
+│   ├── hero-bg.png       # Hero section background image
+│   └── favicon.svg       # Site favicon
 ├── package.json          # Project dependencies
+├── vercel.json          # Vercel deployment configuration
 ├── .env                  # Environment variables (not tracked)
 ├── .env.example          # Environment template
-└── .gitignore           # Git ignore rules
+├── .gitignore           # Git ignore rules
+├── linkedin-posts.md    # LinkedIn marketing content
+├── linkedin-post-personal.txt
+├── linkedin-post-company.txt
+├── README.md           # This file
+└── DEPLOYMENT.md      # Deployment instructions
 ```
 
 ## 🛠️ Technology Stack

@@ -1,15 +1,24 @@
 {
   "name": "lenilani-ai",
   "version": "1.0.0",
-  "description": "LeniLani AI - Advanced AI Assistant for Lead Capture and Consultation",
+  "description": "LeniLani AI - Intelligent Business Consultation Chatbot for Lead Qualification",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "deploy": "vercel --prod"
   },
-  "keywords": ["chatbot", "ai", "lenilani"],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["chatbot", "ai", "lenilani", "langchain", "anthropic", "claude", "consultation", "lead-generation"],
+  "author": "LeniLani Consulting",
+  "license": "Proprietary",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rprovine/lenilani-ai.git"
+  },
+  "homepage": "https://ai-bot-special.lenilani.com",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
