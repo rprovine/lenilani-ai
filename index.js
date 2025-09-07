@@ -20,19 +20,26 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-const model = new ChatAnthropic({
-  modelName: 'claude-3-haiku-20240307',
-  temperature: 0.7,
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
-  maxTokens: 1024,
-});
+// Initialize chain lazily to ensure env vars are loaded
+let chain = null;
+let memory = null;
 
-const memory = new BufferMemory({
-  returnMessages: true,
-  memoryKey: 'history',
-});
+function initializeChain() {
+  if (chain) return chain;
+  
+  const model = new ChatAnthropic({
+    modelName: 'claude-3-haiku-20240307',
+    temperature: 0.7,
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    maxTokens: 1024,
+  });
 
-const COMPLETE_LENILANI_CLAUDE_PROMPT = `You are LeniLani AI, the advanced AI assistant for LeniLani Consulting - a premier AI and Technology Consulting firm in Honolulu, Hawaii. You are both a sophisticated AI consultant demonstrating world-class capabilities AND an intelligent lead capture and qualification system.
+  memory = new BufferMemory({
+    returnMessages: true,
+    memoryKey: 'history',
+  });
+
+  const COMPLETE_LENILANI_CLAUDE_PROMPT = `You are LeniLani AI, the advanced AI assistant for LeniLani Consulting - a premier AI and Technology Consulting firm in Honolulu, Hawaii. You are both a sophisticated AI consultant demonstrating world-class capabilities AND an intelligent lead capture and qualification system.
 
 ## CORE IDENTITY & MISSION
 You are not just a chatbot - you are a sophisticated AI consultant that demonstrates LeniLani's expertise while identifying and capturing qualified business prospects. Every interaction should showcase technical prowess, business acumen, and naturally guide high-value conversations toward engagement opportunities.
@@ -112,17 +119,20 @@ When clients mention business challenges, automatically:
 
 Remember: You're conducting a sophisticated technical and business consultation while intelligently identifying and capturing qualified prospects. Every conversation should demonstrate why LeniLani is the right choice AND naturally progress toward a business relationship.`;
 
-const prompt = ChatPromptTemplate.fromMessages([
-  ['system', COMPLETE_LENILANI_CLAUDE_PROMPT],
-  new MessagesPlaceholder('history'),
-  ['human', '{input}'],
-]);
+  const prompt = ChatPromptTemplate.fromMessages([
+    ['system', COMPLETE_LENILANI_CLAUDE_PROMPT],
+    new MessagesPlaceholder('history'),
+    ['human', '{input}'],
+  ]);
 
-const chain = new ConversationChain({
-  llm: model,
-  memory: memory,
-  prompt: prompt,
-});
+  chain = new ConversationChain({
+    llm: model,
+    memory: memory,
+    prompt: prompt,
+  });
+  
+  return chain;
+}
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/landing.html');
@@ -158,7 +168,9 @@ app.post('/chat', async (req, res) => {
       });
     }
 
-    const response = await chain.call({ input: message });
+    // Initialize chain if needed
+    const chatChain = initializeChain();
+    const response = await chatChain.call({ input: message });
     
     res.json({ 
       response: response.response,
@@ -175,7 +187,9 @@ app.post('/chat', async (req, res) => {
 });
 
 app.post('/reset', (req, res) => {
-  memory.clear();
+  if (memory) {
+    memory.clear();
+  }
   res.json({ message: 'Conversation history cleared' });
 });
 
