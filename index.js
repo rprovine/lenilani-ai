@@ -140,6 +140,15 @@ app.post('/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    // Check if API key is available
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('ANTHROPIC_API_KEY is not set');
+      return res.status(500).json({ 
+        error: 'Configuration error',
+        details: 'API key not configured. Please contact support.'
+      });
+    }
+
     const response = await chain.call({ input: message });
     
     res.json({ 
@@ -148,9 +157,10 @@ app.post('/chat', async (req, res) => {
     });
   } catch (error) {
     console.error('Error processing chat:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ 
       error: 'An error occurred while processing your message',
-      details: error.message 
+      details: error.message || 'Unknown error'
     });
   }
 });
@@ -163,7 +173,13 @@ app.post('/reset', (req, res) => {
 // Serve static files AFTER routes to prevent conflicts
 app.use(express.static('public'));
 
-app.listen(PORT, () => {
-  console.log(`LeniLani AI is running on port ${PORT}`);
-  console.log(`Visit http://localhost:${PORT} to interact with LeniLani AI`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`LeniLani AI is running on port ${PORT}`);
+    console.log(`Visit http://localhost:${PORT} to interact with LeniLani AI`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
