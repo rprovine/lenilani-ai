@@ -2712,7 +2712,10 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
     // Update language mode if provided in request
     if (languageMode && ['english', 'pidgin', 'olelo'].includes(languageMode)) {
+      console.log(`🌐 Language mode updated to: ${languageMode}`);
       context.languageMode = languageMode;
+    } else if (languageMode) {
+      console.log(`⚠️  Invalid language mode received: ${languageMode}`);
     }
 
     context.messages.push({ role: 'user', content: message });
@@ -2870,10 +2873,13 @@ app.post('/chat', chatLimiter, async (req, res) => {
     }
 
     // 🤖 PHASE 3 - Language Mode: Inject language-specific instructions
+    console.log(`🌐 Checking language mode for injection: ${context.languageMode}`);
     if (context.languageMode === 'pidgin') {
+      console.log('🌺 Injecting Pidgin instructions');
       const pidginInstructions = getPidginModeInstructions();
       enhancedMessage += `\n\n${pidginInstructions}`;
     } else if (context.languageMode === 'olelo') {
+      console.log('🌺 Injecting ʻŌlelo Hawaiʻi instructions');
       const oleloInstructions = getOleloHawaiiInstructions();
       enhancedMessage += `\n\n${oleloInstructions}`;
     }
