@@ -43,26 +43,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security: Add helmet for security headers
+// Disable CSP in production to avoid blocking issues on Vercel
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"], // Required for inline scripts
-      styleSrc: ["'self'", "'unsafe-inline'"], // Required for inline styles
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    },
-  },
-  crossOriginEmbedderPolicy: false, // Allow embedding if needed
+  contentSecurityPolicy: false, // Disabled - was blocking Vercel deployments
+  crossOriginEmbedderPolicy: false,
 }));
 
 // Security: Configure CORS to only allow specific origins in production
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://ai-bot-special.lenilani.com', 'https://lenilani.com', 'https://www.lenilani.com']
+  ? [
+      'https://ai-bot-special.lenilani.com',
+      'https://lenilani.com',
+      'https://www.lenilani.com',
+      'https://langchain-chatbot-lenilani-7tztcdody-rprovines-projects.vercel.app' // Vercel URL
+    ]
   : ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
 app.use(cors({
