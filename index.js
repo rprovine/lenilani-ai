@@ -486,6 +486,10 @@ async function createOrUpdateContact(contactData) {
     };
 
     // 🤖 PHASE 3 - Automated Follow-Up: Add lead intelligence properties
+    // NOTE: These custom properties must be created in HubSpot first
+    // To create them: HubSpot → Settings → Properties → Create Custom Properties
+    // Uncomment these once the properties exist in your HubSpot account
+    /*
     if (contactData.leadScore !== undefined) {
       properties.ai_lead_score = contactData.leadScore.toString();
       properties.ai_lead_priority = contactData.leadPriority || '';
@@ -494,13 +498,17 @@ async function createOrUpdateContact(contactData) {
     if (contactData.recommendedService) {
       properties.ai_recommended_service = contactData.recommendedService;
     }
+    */
 
+    // ROI-related custom properties (also need to be created in HubSpot)
+    /*
     if (contactData.roiData) {
       properties.ai_annual_savings = contactData.roiData.potentialSavings?.toString() || '';
       properties.ai_roi_percentage = contactData.roiData.roi?.toString() || '';
       properties.ai_hours_per_week = contactData.roiData.hoursPerWeek?.toString() || '';
       properties.ai_work_type = contactData.roiData.workType || '';
     }
+    */
 
     // Try to find existing contact by email
     let contactId = null;

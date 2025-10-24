@@ -6,7 +6,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function checkTestResult() {
-  const sessionId = 'test-hubspot-1761302085367';
+  const sessionId = 'test-hubspot-1761302191759';
 
   const { data, error } = await supabase
     .from('conversations')
