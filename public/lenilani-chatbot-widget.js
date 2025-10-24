@@ -63,7 +63,7 @@
             bottom: 100px;
             right: 20px;
             width: 400px;
-            height: 600px;
+            height: 650px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
@@ -101,7 +101,7 @@
         .lenilani-chat-header {
             background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
             color: white;
-            padding: 20px;
+            padding: 12px 15px;
             border-radius: 20px 20px 0 0;
             display: flex;
             justify-content: space-between;
@@ -114,13 +114,13 @@
 
         .lenilani-chat-header h3 {
             margin: 0;
-            font-size: 18px;
-            margin-bottom: 5px;
+            font-size: 16px;
+            margin-bottom: 3px;
         }
 
         .lenilani-chat-header p {
             margin: 0;
-            font-size: 12px;
+            font-size: 10px;
             opacity: 0.9;
         }
 
@@ -230,19 +230,19 @@
         }
 
         .lenilani-chat-input {
-            padding: 20px;
+            padding: 12px;
             border-top: 1px solid #e9ecef;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             background: white;
         }
 
         .lenilani-chat-input input {
             flex: 1;
-            padding: 12px;
+            padding: 10px 12px;
             border: 2px solid #e9ecef;
-            border-radius: 25px;
-            font-size: 14px;
+            border-radius: 20px;
+            font-size: 13px;
             outline: none;
             transition: border-color 0.3s;
         }
@@ -252,12 +252,12 @@
         }
 
         .lenilani-chat-input button {
-            padding: 12px 20px;
+            padding: 10px 18px;
             background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
             color: white;
             border: none;
-            border-radius: 25px;
-            font-size: 14px;
+            border-radius: 20px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s;
@@ -298,15 +298,15 @@
         }
 
         .lenilani-quickstart {
-            padding: 15px;
+            padding: 10px;
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
         }
 
         .lenilani-quickstart-title {
-            font-size: 11px;
+            font-size: 9px;
             color: #6c757d;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
             font-weight: 600;
             text-transform: uppercase;
@@ -316,17 +316,17 @@
         .lenilani-quickstart-buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
 
         .lenilani-quickstart-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px;
+            padding: 8px;
             background: white;
             border: 2px solid #e9ecef;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
@@ -339,12 +339,12 @@
         }
 
         .lenilani-quickstart-icon {
-            font-size: 24px;
-            margin-bottom: 6px;
+            font-size: 20px;
+            margin-bottom: 4px;
         }
 
         .lenilani-quickstart-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #333;
             font-weight: 500;
         }
@@ -353,8 +353,8 @@
         .lenilani-social-proof {
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
             border-bottom: 1px solid #bae6fd;
-            padding: 10px 15px;
-            font-size: 11px;
+            padding: 6px 12px;
+            font-size: 9px;
             color: #0369a1;
             text-align: center;
             font-weight: 500;
@@ -363,14 +363,14 @@
         .lenilani-social-stats {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .lenilani-stat-item {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
 
         .lenilani-stat-item strong {
@@ -379,26 +379,26 @@
 
         /* Language selector */
         .lenilani-language-selector {
-            margin-top: 10px;
+            margin-top: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .lenilani-language-label {
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 600;
-            opacity: 0.95;
+            opacity: 0.9;
         }
 
         .lenilani-language-select {
-            padding: 6px 12px;
+            padding: 3px 8px;
             background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
             color: white;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
             outline: none;
@@ -414,17 +414,17 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
-            padding: 10px;
+            gap: 6px;
+            padding: 8px;
             border-top: 1px solid #e9ecef;
             flex-wrap: wrap;
             background: white;
         }
 
         .lenilani-action-btn {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s;
