@@ -41,31 +41,49 @@ const KNOWLEDGE_BASE = fs.readFileSync(
 
 // HubSpot configuration
 const HUBSPOT_MEETING_LINK = process.env.HUBSPOT_MEETING_LINK || 'https://meetings-na2.hubspot.com/reno?uuid=ee86f3dc-1bde-4684-8460-c998aef13e65';
-const HUBSPOT_API_KEY = process.env.HUBSPOT_API_KEY;
 
-// Initialize HubSpot client if API key is available
+// Lazy initialization for HubSpot client (better for serverless)
 let hubspotClient = null;
-console.log('🔍 Checking HubSpot configuration...');
-console.log(`   HUBSPOT_API_KEY exists: ${!!HUBSPOT_API_KEY}`);
-console.log(`   HUBSPOT_API_KEY length: ${HUBSPOT_API_KEY ? HUBSPOT_API_KEY.length : 0}`);
-console.log(`   HUBSPOT_API_KEY prefix: ${HUBSPOT_API_KEY ? HUBSPOT_API_KEY.substring(0, 10) + '...' : 'not set'}`);
+let hubspotInitAttempted = false;
+let hubspotInitError = null;
 
-if (HUBSPOT_API_KEY) {
-  try {
-    hubspotClient = new Client({ accessToken: HUBSPOT_API_KEY });
-    console.log('✅ HubSpot client initialized successfully');
-    console.log('   Lead capture: ENABLED');
-  } catch (error) {
-    console.error('❌ Failed to initialize HubSpot client:', error.message);
+function getHubSpotClient() {
+  if (hubspotInitAttempted) {
+    return hubspotClient;
+  }
+
+  hubspotInitAttempted = true;
+  const HUBSPOT_API_KEY = process.env.HUBSPOT_API_KEY;
+
+  console.log('🔍 Initializing HubSpot client (lazy)...');
+  console.log(`   HUBSPOT_API_KEY exists: ${!!HUBSPOT_API_KEY}`);
+  console.log(`   HUBSPOT_API_KEY length: ${HUBSPOT_API_KEY ? HUBSPOT_API_KEY.length : 0}`);
+  console.log(`   HUBSPOT_API_KEY prefix: ${HUBSPOT_API_KEY ? HUBSPOT_API_KEY.substring(0, 15) + '...' : 'not set'}`);
+  console.log(`   HUBSPOT_API_KEY type: ${typeof HUBSPOT_API_KEY}`);
+  console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  if (HUBSPOT_API_KEY) {
+    const trimmedKey = HUBSPOT_API_KEY.trim();
+    console.log(`   Key trimmed length: ${trimmedKey.length} (original: ${HUBSPOT_API_KEY.length})`);
+
+    try {
+      hubspotClient = new Client({ accessToken: trimmedKey });
+      console.log('✅ HubSpot client initialized successfully');
+      console.log(`   Client object type: ${typeof hubspotClient}`);
+      console.log(`   Client is null: ${hubspotClient === null}`);
+      console.log('   Lead capture: ENABLED');
+    } catch (error) {
+      hubspotInitError = error;
+      console.error('❌ Failed to initialize HubSpot client:', error.message);
+      console.error('   Error stack:', error.stack);
+      console.log('   Lead capture: DISABLED');
+    }
+  } else {
+    console.warn('⚠️  HubSpot API key not configured');
     console.log('   Lead capture: DISABLED');
   }
-} else {
-  console.warn('⚠️  HubSpot API key not configured');
-  console.log('   To enable lead capture:');
-  console.log('   1. Get API key from HubSpot → Settings → Integrations → Private Apps');
-  console.log('   2. Add HUBSPOT_API_KEY to Vercel environment variables');
-  console.log('   3. Redeploy the application');
-  console.log('   Lead capture: DISABLED');
+
+  return hubspotClient;
 }
 
 // Set LangChain tracing if API key is provided
@@ -447,7 +465,7 @@ Remember: You're conducting a sophisticated technical and business consultation 
 
 // HubSpot Lead Capture Functions
 async function createOrUpdateContact(contactData) {
-  if (!hubspotClient) {
+  if (!getHubSpotClient()) {
     console.warn('HubSpot client not initialized - skipping lead capture');
     return { success: false, error: 'HubSpot not configured' };
   }
@@ -488,7 +506,7 @@ async function createOrUpdateContact(contactData) {
     // Try to find existing contact by email
     let contactId = null;
     try {
-      const searchResponse = await hubspotClient.crm.contacts.searchApi.doSearch({
+      const searchResponse = await getHubSpotClient().crm.contacts.searchApi.doSearch({
         filterGroups: [{
           filters: [{
             propertyName: 'email',
@@ -510,7 +528,7 @@ async function createOrUpdateContact(contactData) {
     let result;
     if (contactId) {
       // Update existing contact
-      result = await hubspotClient.crm.contacts.basicApi.update(contactId, {
+      result = await getHubSpotClient().crm.contacts.basicApi.update(contactId, {
         properties: {
           ...properties,
           hs_lead_status: 'OPEN', // Update status for existing contact
@@ -519,7 +537,7 @@ async function createOrUpdateContact(contactData) {
       console.log(`✅ Updated HubSpot contact: ${contactId}`);
     } else {
       // Create new contact
-      result = await hubspotClient.crm.contacts.basicApi.create({
+      result = await getHubSpotClient().crm.contacts.basicApi.create({
         properties
       });
       contactId = result.id;
@@ -553,7 +571,7 @@ async function createOrUpdateContact(contactData) {
 
 // 🤖 PHASE 3 - Automated Follow-Up System
 async function enrollInFollowUpWorkflow(contactId, leadScore, recommendedService) {
-  if (!hubspotClient) return;
+  if (!getHubSpotClient()) return;
 
   try {
     // Determine workflow ID based on lead priority
@@ -571,7 +589,7 @@ async function enrollInFollowUpWorkflow(contactId, leadScore, recommendedService
     // Example workflow enrollment code (requires workflow IDs from HubSpot):
     /*
     const workflowId = getWorkflowIdByPriority(leadPriority);
-    await hubspotClient.automation.workflows.enrollmentsApi.enrollContact(
+    await getHubSpotClient().automation.workflows.enrollmentsApi.enrollContact(
       workflowId,
       contactId
     );
@@ -587,7 +605,7 @@ async function enrollInFollowUpWorkflow(contactId, leadScore, recommendedService
 
 // Create a follow-up task in HubSpot based on lead priority
 async function createFollowUpTask(contactId, leadScore, recommendedService) {
-  if (!hubspotClient) return;
+  if (!getHubSpotClient()) return;
 
   try {
     const leadPriority = getLeadPriority(leadScore);
@@ -642,7 +660,7 @@ ${recommendedService ? `• Recommended Service: ${recommendedService}` : ''}
       }]
     }];
 
-    await hubspotClient.crm.objects.tasks.basicApi.create({
+    await getHubSpotClient().crm.objects.tasks.basicApi.create({
       properties: taskProperties,
       associations
     });
@@ -693,7 +711,7 @@ function formatTimeAMPM(hour, minute) {
 
 // 📅 PHASE 4A - Direct Appointment Scheduling: Create appointment booking in HubSpot
 async function createAppointmentBooking(contactId, bookingDetails) {
-  if (!hubspotClient) return;
+  if (!getHubSpotClient()) return;
 
   try {
     const { date, time, timezone, email, name, phone, message } = bookingDetails;
@@ -732,7 +750,7 @@ ${message ? `• Message: ${message}` : ''}
       }]
     }];
 
-    await hubspotClient.crm.objects.tasks.basicApi.create({
+    await getHubSpotClient().crm.objects.tasks.basicApi.create({
       properties: taskProperties,
       associations
     });
@@ -745,7 +763,7 @@ ${message ? `• Message: ${message}` : ''}
 
 // 💳 PHASE 4B - HubSpot Payment Integration: Create payment link
 async function createHubSpotPaymentLink(paymentData) {
-  if (!hubspotClient) {
+  if (!getHubSpotClient()) {
     console.warn('HubSpot client not configured - cannot create payment link');
     return { success: false, error: 'HubSpot not configured' };
   }
@@ -771,7 +789,7 @@ async function createHubSpotPaymentLink(paymentData) {
 
     // For now, generate a manual payment request URL
     // In full implementation, use HubSpot's Payment API:
-    // const payment = await hubspotClient.crm.objects.create('payments', paymentLinkData);
+    // const payment = await getHubSpotClient().crm.objects.create('payments', paymentLinkData);
 
     const paymentUrl = `${process.env.HUBSPOT_PAYMENT_LINK || 'https://app.hubspot.com/payments'}?amount=${amount}&email=${encodeURIComponent(email)}&service=${encodeURIComponent(service)}`;
 
@@ -791,13 +809,13 @@ async function createHubSpotPaymentLink(paymentData) {
 
 // 💳 PHASE 4B - HubSpot Payment Integration: Get payment status
 async function getHubSpotPaymentStatus(paymentId) {
-  if (!hubspotClient) {
+  if (!getHubSpotClient()) {
     throw new Error('HubSpot client not configured');
   }
 
   try {
     // In full implementation, query HubSpot Payment object:
-    // const payment = await hubspotClient.crm.objects.basicApi.getById('payments', paymentId);
+    // const payment = await getHubSpotClient().crm.objects.basicApi.getById('payments', paymentId);
 
     // For now, return mock status
     return {
@@ -916,7 +934,7 @@ async function sendConversationSummaryEmail(recipientEmail, conversationData) {
 }
 
 async function addNoteToContact(contactId, noteContent) {
-  if (!hubspotClient) return;
+  if (!getHubSpotClient()) return;
 
   try {
     // Format the conversation with proper paragraph breaks
@@ -959,7 +977,7 @@ ${formattedConversation}
       }]
     }];
 
-    await hubspotClient.crm.objects.notes.basicApi.create({
+    await getHubSpotClient().crm.objects.notes.basicApi.create({
       properties: noteProperties,
       associations
     });
@@ -971,7 +989,7 @@ ${formattedConversation}
 }
 
 async function createEscalationNote(contactId, context) {
-  if (!hubspotClient) return;
+  if (!getHubSpotClient()) return;
 
   try {
     const conversationSummary = context.messages
@@ -1037,7 +1055,7 @@ ${conversationSummary}
       }]
     }];
 
-    await hubspotClient.crm.objects.notes.basicApi.create({
+    await getHubSpotClient().crm.objects.notes.basicApi.create({
       properties: noteProperties,
       associations
     });
@@ -3006,7 +3024,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
       saveAnalytics();
 
       // Create high-priority note in HubSpot if contact exists
-      if (context.contactId && hubspotClient) {
+      if (context.contactId && getHubSpotClient()) {
         await createEscalationNote(context.contactId, context);
       }
     }
@@ -3164,11 +3182,11 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
     console.log(`   Email value: ${context.contactInfo.email || 'none'}`);
     console.log(`   Name captured: ${!!context.contactInfo.name}`);
     console.log(`   Name value: ${context.contactInfo.name || 'none'}`);
-    console.log(`   HubSpot client: ${hubspotClient ? 'initialized' : 'NULL'}`);
+    console.log(`   HubSpot client: ${getHubSpotClient() ? 'initialized' : 'NULL'}`);
     console.log(`   Already captured: ${context.leadCaptured ? 'YES' : 'NO'}`);
-    console.log(`   Condition check: email=${!!context.contactInfo.email}, name=${!!context.contactInfo.name}, hubspot=${!!hubspotClient}, notCaptured=${!context.leadCaptured}`);
+    console.log(`   Condition check: email=${!!context.contactInfo.email}, name=${!!context.contactInfo.name}, hubspot=${!!getHubSpotClient()}, notCaptured=${!context.leadCaptured}`);
 
-    if (context.contactInfo.email && context.contactInfo.name && hubspotClient && !context.leadCaptured) {
+    if (context.contactInfo.email && context.contactInfo.name && getHubSpotClient() && !context.leadCaptured) {
       console.log('✅ All conditions met (email + name) - proceeding with HubSpot lead capture...');
       // Build conversation summary with proper formatting
       const conversationSummary = context.messages
@@ -3211,7 +3229,7 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
         console.log(`   Recommended Service: ${context.recommendedService?.service || 'none'}`);
 
         // If escalation was requested but note wasn't created yet (contactId didn't exist), create it now
-        if (context.escalationRequested && hubspotClient) {
+        if (context.escalationRequested && getHubSpotClient()) {
           await createEscalationNote(context.contactId, context);
         }
       } else {
@@ -3282,23 +3300,31 @@ app.get('/admin', (req, res) => {
 
 // 🔧 Diagnostic endpoint - check HubSpot and environment configuration
 app.get('/api/diagnostic', (req, res) => {
-  res.json({
-    timestamp: new Date().toISOString(),
-    hubspot: {
-      clientInitialized: !!hubspotClient,
-      apiKeyConfigured: !!HUBSPOT_API_KEY,
-      apiKeyLength: HUBSPOT_API_KEY ? HUBSPOT_API_KEY.length : 0
-    },
-    supabase: {
-      configured: !!SUPABASE_URL && !!SUPABASE_ANON_KEY,
-      url: SUPABASE_URL ? SUPABASE_URL.substring(0, 30) + '...' : 'not set'
-    },
-    anthropic: {
-      configured: !!ANTHROPIC_API_KEY,
-      keyLength: ANTHROPIC_API_KEY ? ANTHROPIC_API_KEY.length : 0
-    },
-    environment: process.env.NODE_ENV || 'development'
-  });
+  try {
+    const client = getHubSpotClient();
+    res.json({
+      timestamp: new Date().toISOString(),
+      hubspot: {
+        clientInitialized: !!client,
+        clientIsNull: client === null,
+        apiKeyConfigured: !!process.env.HUBSPOT_API_KEY,
+        apiKeyLength: process.env.HUBSPOT_API_KEY ? process.env.HUBSPOT_API_KEY.length : 0,
+        apiKeyPrefix: process.env.HUBSPOT_API_KEY ? process.env.HUBSPOT_API_KEY.substring(0, 15) + '...' : 'not set',
+        initError: hubspotInitError ? hubspotInitError.message : null
+      },
+      supabase: {
+        configured: !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY),
+        url: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.substring(0, 30) + '...' : 'not set'
+      },
+      anthropic: {
+        configured: !!process.env.ANTHROPIC_API_KEY,
+        keyLength: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 0
+      },
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message, stack: error.stack });
+  }
 });
 
 // Serve static files AFTER routes to prevent conflicts
