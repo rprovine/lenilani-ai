@@ -1594,9 +1594,6 @@ function generateQuickReplies(context, botResponse) {
     ];
   }
 
-  // 🤖 PHASE 3 - Language Mode: Cycle through English → Pidgin → ʻŌlelo Hawaiʻi
-  const languageMode = context.languageMode || 'english';
-
   // Check for escalation
   if (context.escalationRequested) {
     return [
@@ -2873,11 +2870,10 @@ app.post('/chat', chatLimiter, async (req, res) => {
     }
 
     // 🤖 PHASE 3 - Language Mode: Inject language-specific instructions
-    const languageMode = context.languageMode || 'english';
-    if (languageMode === 'pidgin') {
+    if (context.languageMode === 'pidgin') {
       const pidginInstructions = getPidginModeInstructions();
       enhancedMessage += `\n\n${pidginInstructions}`;
-    } else if (languageMode === 'olelo') {
+    } else if (context.languageMode === 'olelo') {
       const oleloInstructions = getOleloHawaiiInstructions();
       enhancedMessage += `\n\n${oleloInstructions}`;
     }
