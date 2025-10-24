@@ -45,11 +45,27 @@ const HUBSPOT_API_KEY = process.env.HUBSPOT_API_KEY;
 
 // Initialize HubSpot client if API key is available
 let hubspotClient = null;
+console.log('🔍 Checking HubSpot configuration...');
+console.log(`   HUBSPOT_API_KEY exists: ${!!HUBSPOT_API_KEY}`);
+console.log(`   HUBSPOT_API_KEY length: ${HUBSPOT_API_KEY ? HUBSPOT_API_KEY.length : 0}`);
+console.log(`   HUBSPOT_API_KEY prefix: ${HUBSPOT_API_KEY ? HUBSPOT_API_KEY.substring(0, 10) + '...' : 'not set'}`);
+
 if (HUBSPOT_API_KEY) {
-  hubspotClient = new Client({ accessToken: HUBSPOT_API_KEY });
-  console.log('✅ HubSpot client initialized');
+  try {
+    hubspotClient = new Client({ accessToken: HUBSPOT_API_KEY });
+    console.log('✅ HubSpot client initialized successfully');
+    console.log('   Lead capture: ENABLED');
+  } catch (error) {
+    console.error('❌ Failed to initialize HubSpot client:', error.message);
+    console.log('   Lead capture: DISABLED');
+  }
 } else {
-  console.warn('⚠️  HubSpot API key not configured - lead capture disabled');
+  console.warn('⚠️  HubSpot API key not configured');
+  console.log('   To enable lead capture:');
+  console.log('   1. Get API key from HubSpot → Settings → Integrations → Private Apps');
+  console.log('   2. Add HUBSPOT_API_KEY to Vercel environment variables');
+  console.log('   3. Redeploy the application');
+  console.log('   Lead capture: DISABLED');
 }
 
 // Set LangChain tracing if API key is provided
@@ -2967,7 +2983,14 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
 
     // Auto-capture lead if email is provided and HubSpot is configured
     let leadCaptured = false;
+    console.log(`🔍 HubSpot auto-capture check:`);
+    console.log(`   Email captured: ${!!context.contactInfo.email}`);
+    console.log(`   Email value: ${context.contactInfo.email || 'none'}`);
+    console.log(`   HubSpot client: ${hubspotClient ? 'initialized' : 'NULL'}`);
+    console.log(`   Already captured: ${context.leadCaptured ? 'YES' : 'NO'}`);
+
     if (context.contactInfo.email && hubspotClient && !context.leadCaptured) {
+      console.log('✅ All conditions met - proceeding with HubSpot lead capture...');
       // Build conversation summary with proper formatting
       const conversationSummary = context.messages
         .map((msg, index) => {
@@ -2994,12 +3017,19 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
         context.contactId = leadResult.contactId;
         leadCaptured = true;
         console.log(`✅ Lead auto-captured: ${context.contactInfo.email} (Contact ID: ${leadResult.contactId})`);
+        console.log(`   Lead Score: ${context.leadScore}`);
+        console.log(`   Recommended Service: ${context.recommendedService?.service || 'none'}`);
 
         // If escalation was requested but note wasn't created yet (contactId didn't exist), create it now
         if (context.escalationRequested && hubspotClient) {
           await createEscalationNote(context.contactId, context);
         }
+      } else {
+        console.error(`❌ HubSpot lead capture failed for ${context.contactInfo.email}`);
+        console.error(`   Error: ${leadResult.error || 'unknown error'}`);
       }
+    } else {
+      console.log('⏭️  Skipping HubSpot lead capture - conditions not met');
     }
 
     res.json({
