@@ -101,7 +101,7 @@
         .lenilani-chat-header {
             background: linear-gradient(135deg, #0d7377 0%, #14919d 100%);
             color: white;
-            padding: 12px 15px;
+            padding: 16px 20px;
             border-radius: 20px 20px 0 0;
             display: flex;
             justify-content: space-between;
@@ -239,19 +239,19 @@
         }
 
         .lenilani-chat-input {
-            padding: 12px;
+            padding: 16px 20px;
             border-top: 1px solid #e9ecef;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             background: white;
         }
 
         .lenilani-chat-input input {
             flex: 1;
-            padding: 10px 12px;
+            padding: 12px 16px;
             border: 2px solid #e9ecef;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 14px;
             outline: none;
             transition: border-color 0.3s;
         }
@@ -307,7 +307,7 @@
         }
 
         .lenilani-quickstart {
-            padding: 10px;
+            padding: 16px;
             background: #f8f9fa;
             border-bottom: 1px solid #e9ecef;
         }
@@ -332,7 +332,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 8px;
+            padding: 12px;
             background: white;
             border: 2px solid #e9ecef;
             border-radius: 8px;
@@ -423,8 +423,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 6px;
-            padding: 8px;
+            gap: 10px;
+            padding: 14px 16px;
             border-top: 1px solid #e9ecef;
             flex-wrap: wrap;
             background: white;
@@ -586,22 +586,6 @@
                 </div>
                 <button class="lenilani-close-btn" aria-label="Close chat">×</button>
             </div>
-            <div class="lenilani-social-proof">
-                <div class="lenilani-social-stats">
-                    <div class="lenilani-stat-item">
-                        <span>✅</span>
-                        <span><strong>10+</strong> Hawaii Businesses</span>
-                    </div>
-                    <div class="lenilani-stat-item">
-                        <span>⚡</span>
-                        <span><strong>&lt;2 min</strong> Response</span>
-                    </div>
-                    <div class="lenilani-stat-item">
-                        <span>🌟</span>
-                        <span><strong>30+ Years</strong> Experience</span>
-                    </div>
-                </div>
-            </div>
             <div class="lenilani-quickstart" id="lenilani-quickstart">
                 <div class="lenilani-quickstart-title">Quick Start</div>
                 <div class="lenilani-quickstart-buttons">
@@ -636,7 +620,6 @@
             <div class="lenilani-actions">
                 <button class="lenilani-action-btn lenilani-clear-btn" id="lenilani-clear">Clear Chat</button>
                 <button class="lenilani-action-btn lenilani-human-btn" id="lenilani-human">👤 Talk to Human</button>
-                <a href="${API_BASE_URL}/stats" target="_blank" class="lenilani-action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; text-decoration: none;">📊 Live Stats</a>
             </div>
             <div class="lenilani-chat-input">
                 <input
