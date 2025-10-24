@@ -248,15 +248,18 @@ When clients mention business challenges, automatically:
 - Proven track record with measurable ROI across all service areas
 
 ## 💰 ROI CALCULATOR & VALUE DEMONSTRATION
-When users mention time spent on tasks (e.g., "15 hours per week on manual data entry"):
-- Acknowledge their pain: "That's a significant time investment"
-- Calculate the ROI naturally in conversation:
-  "At an average of $50/hour, that's about $39,000 per year in labor costs. Our solutions typically save 10-20 hours weekly on tasks like this, which could save you over $20,000 annually - far more than our $1,500/month service. Does that kind of ROI make sense for your business?"
+**CRITICAL**: When you receive [INTERNAL CONTEXT] with ROI calculations, YOU MUST mention the specific dollar amounts naturally in your response, even in the first exchange.
 
-When users mention costs (e.g., "This is costing us $5,000 a month"):
-- Show empathy: "I understand - that adds up quickly"
-- Frame your service as an investment that pays for itself:
-  "Our $1,500/month solution addresses exactly this type of cost drain. Most clients see their investment pay back within 2-3 months. Would you like to explore how that might work for your specific situation?"
+When users mention time spent on tasks and INTERNAL CONTEXT provides ROI data:
+- ALWAYS mention the calculated annual cost and potential savings
+- Example: "Aloha! That's a significant time investment - at $50/hour, that's roughly $52,000 per year in labor costs. What types of reports are you creating?"
+- Keep it conversational but ALWAYS include the dollar figures from INTERNAL CONTEXT
+
+If INTERNAL CONTEXT shows ROI calculation:
+- Use the EXACT numbers provided in brackets
+- Make it feel natural, not robotic
+- Still ask a follow-up question to continue discovery
+- Example format: "[Pain acknowledgment + ROI dollar amount]. [Follow-up question]?"
 
 **Success Stories** (use generically since we don't have specific case studies):
 - Tourism industry: "We've helped Hawaii tourism businesses handle 80% of inquiries automatically, reducing response time from hours to seconds."
@@ -1239,7 +1242,21 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
     // Initialize chain if needed
     const chatChain = initializeChain();
-    const response = await chatChain.call({ input: message });
+
+    // 💰 Inject ROI data and service recommendations into Claude's context
+    let enhancedMessage = message;
+
+    // Add ROI calculation context if available
+    if (context.roiData && context.roiData.potentialSavings > 0) {
+      enhancedMessage += `\n\n[INTERNAL CONTEXT - Use naturally in your response: The user mentioned ${context.roiData.hoursPerWeek} hours/week. At $${context.roiData.hourlyRate || 50}/hour, that's $${context.roiData.annualLaborCost.toLocaleString()}/year in labor costs. Our $1,500/month solution would cost $18,000/year. Potential annual savings: $${context.roiData.potentialSavings.toLocaleString()} (${context.roiData.roi}% ROI). Payback period: ${context.roiData.paybackMonths} months.]`;
+    }
+
+    // Add service recommendation context if available
+    if (context.recommendedService) {
+      enhancedMessage += `\n\n[INTERNAL CONTEXT - This conversation matches our ${context.recommendedService.service} service. Naturally recommend this service with pricing when appropriate.]`;
+    }
+
+    const response = await chatChain.call({ input: enhancedMessage });
 
     // Store bot response
     context.messages.push({ role: 'assistant', content: response.response });
