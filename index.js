@@ -1580,35 +1580,35 @@ function generateQuickReplies(context, botResponse) {
         "We need faster response times",
         "Too many repetitive questions",
         "Want to capture more leads",
-        "Need 24/7 customer support"
+        pidginToggle
       ];
     } else if (recommendedService === 'Business Intelligence' || allMessages.includes('data') || allMessages.includes('spreadsheet') || allMessages.includes('report')) {
       return [
         "We're drowning in spreadsheets",
         "Need real-time insights",
         "Want automated reporting",
-        "Can't make sense of our data"
+        pidginToggle
       ];
     } else if (recommendedService === 'System Integration' || allMessages.includes('multiple') || allMessages.includes('platform') || allMessages.includes('tools')) {
       return [
         "Too many disconnected tools",
         "Manual data entry is killing us",
         "Need systems to talk to each other",
-        "Want to automate workflows"
+        pidginToggle
       ];
     } else if (recommendedService === 'Fractional CTO' || allMessages.includes('strategy') || allMessages.includes('technology') || allMessages.includes('roadmap')) {
       return [
         "Need technology strategy",
         "Don't know what to build vs buy",
         "Want a tech roadmap",
-        "Need help evaluating vendors"
+        pidginToggle
       ];
     } else if (recommendedService === 'Marketing Automation' || allMessages.includes('marketing') || allMessages.includes('hubspot') || allMessages.includes('leads')) {
       return [
         "Lead generation is slow",
         "Manual marketing tasks",
         "Need better lead nurturing",
-        "Want to automate campaigns"
+        pidginToggle
       ];
     } else {
       // Generic business challenges
@@ -1616,7 +1616,7 @@ function generateQuickReplies(context, botResponse) {
         "We're wasting too much time",
         "Processes are inefficient",
         "Need to scale operations",
-        "Looking for technology solutions"
+        pidginToggle
       ];
     }
   }
@@ -1627,7 +1627,7 @@ function generateQuickReplies(context, botResponse) {
       "Tell me more about solutions",
       "How does this work?",
       "What's the cost?",
-      "Can you send me examples?"
+      pidginToggle
     ];
   }
 
@@ -1637,7 +1637,7 @@ function generateQuickReplies(context, botResponse) {
       "I'd like to learn more",
       "Send me some information",
       "Let's schedule a call",
-      "What are the next steps?"
+      pidginToggle
     ];
   }
 
@@ -1646,7 +1646,7 @@ function generateQuickReplies(context, botResponse) {
     "Tell me more",
     "How can you help?",
     "What's involved?",
-    "I'm interested"
+    pidginToggle
   ];
 }
 
