@@ -3096,7 +3096,11 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
       escalationRequested: context.escalationRequested || false,
       timestamp: new Date().toISOString(),
       leadCaptured: leadCaptured,
-      contactInfo: context.contactInfo.email ? { email: context.contactInfo.email } : null
+      contactInfo: context.contactInfo.email ? { email: context.contactInfo.email } : null,
+      // Additional fields for testing and debugging
+      leadScore: context.leadScore || 0,
+      emailCaptured: !!context.contactInfo.email,
+      phoneCaptured: !!context.contactInfo.phone
     });
   } catch (error) {
     // Security: Log detailed error server-side but don't expose to client
