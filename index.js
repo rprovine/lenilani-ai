@@ -3031,12 +3031,14 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
     // Auto-capture lead if email AND name are provided and HubSpot is configured
     let leadCaptured = false;
     console.log(`🔍 HubSpot auto-capture check:`);
+    console.log(`   Full contactInfo object:`, JSON.stringify(context.contactInfo, null, 2));
     console.log(`   Email captured: ${!!context.contactInfo.email}`);
     console.log(`   Email value: ${context.contactInfo.email || 'none'}`);
     console.log(`   Name captured: ${!!context.contactInfo.name}`);
     console.log(`   Name value: ${context.contactInfo.name || 'none'}`);
     console.log(`   HubSpot client: ${hubspotClient ? 'initialized' : 'NULL'}`);
     console.log(`   Already captured: ${context.leadCaptured ? 'YES' : 'NO'}`);
+    console.log(`   Condition check: email=${!!context.contactInfo.email}, name=${!!context.contactInfo.name}, hubspot=${!!hubspotClient}, notCaptured=${!context.leadCaptured}`);
 
     if (context.contactInfo.email && context.contactInfo.name && hubspotClient && !context.leadCaptured) {
       console.log('✅ All conditions met (email + name) - proceeding with HubSpot lead capture...');
@@ -3098,11 +3100,16 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
       escalationRequested: context.escalationRequested || false,
       timestamp: new Date().toISOString(),
       leadCaptured: leadCaptured,
-      contactInfo: context.contactInfo.email ? { email: context.contactInfo.email } : null,
+      contactInfo: context.contactInfo.email ? {
+        email: context.contactInfo.email,
+        name: context.contactInfo.name || null,
+        phone: context.contactInfo.phone || null
+      } : null,
       // Additional fields for testing and debugging
       leadScore: context.leadScore || 0,
       emailCaptured: !!context.contactInfo.email,
-      phoneCaptured: !!context.contactInfo.phone
+      phoneCaptured: !!context.contactInfo.phone,
+      nameCaptured: !!context.contactInfo.name
     });
   } catch (error) {
     // Security: Log detailed error server-side but don't expose to client
