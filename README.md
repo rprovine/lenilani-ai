@@ -13,13 +13,16 @@ An advanced AI-powered chatbot and lead qualification system built for LeniLani 
 - **Advanced AI Conversations** - Powered by Anthropic Claude with LangChain framework
 - **Comprehensive Knowledge Base** - Automatically loads verified company information from all LeniLani domains (www.lenilani.com, hawaii.lenilani.com, and all subdomains)
 - **HubSpot Meeting Integration** - Smart booking buttons appear automatically when users ask about scheduling, with direct link to real-time availability
-- **Automatic Lead Capture to HubSpot** - Detects email addresses and automatically creates/updates HubSpot contacts with full conversation tracking and source attribution ("LeniLani AI Chatbot")
+- **Automatic Lead Capture to HubSpot** ✅ **PRODUCTION READY** - Detects email addresses and automatically creates/updates HubSpot contacts with full conversation tracking and source attribution ("LeniLani AI Chatbot")
+  - Lazy initialization for serverless environments (Vercel)
+  - Automatic contact creation with email, name, phone, and conversation summary
+  - Optional custom properties for lead scoring and service recommendations
 - **Intelligent Lead Qualification** - Progressive contact information collection through natural conversation
 - **Business Consultation Mode** - Demonstrates deep domain expertise in AI/ML, data science, and technology strategy
 - **Paragraph-Formatted Responses** - Clean, readable responses with proper paragraph breaks
-- **Conversation Context Tracking** - Full conversation history stored and attached to HubSpot contacts
+- **Conversation Context Tracking** - Full conversation history stored in Supabase and attached to HubSpot contacts
 - **Professional Landing Page** - Showcases technology stack and expertise
-- **Conversation Memory** - Maintains context throughout user sessions
+- **Conversation Memory** - Maintains context throughout user sessions with Supabase persistence
 
 ## 🚀 Quick Start
 
