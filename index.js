@@ -2920,6 +2920,16 @@ app.post('/chat', chatLimiter, async (req, res) => {
       console.log('🌺 Injecting ʻŌlelo Hawaiʻi instructions');
       const oleloInstructions = getOleloHawaiiInstructions();
       enhancedMessage += `\n\n${oleloInstructions}`;
+    } else if (context.languageMode === 'english') {
+      console.log('🇺🇸 Injecting English mode instructions');
+      enhancedMessage += `\n\n[ENGLISH MODE ACTIVE]
+
+IMPORTANT: You must respond in standard professional English. If you were previously speaking in Pidgin or Hawaiian, you MUST switch back to English immediately.
+
+- Speak in clear, professional English
+- Use standard business terminology
+- Maintain a friendly, consultative approach
+- Do NOT use Pidgin or Hawaiian unless specifically asked by the user`;
     }
 
     // Add ROI calculation context if available
