@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
@@ -40,8 +42,61 @@ if (process.env.LANGCHAIN_API_KEY) {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
+// Security: Add helmet for security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Required for inline scripts
+      styleSrc: ["'self'", "'unsafe-inline'"], // Required for inline styles
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Allow embedding if needed
+}));
+
+// Security: Configure CORS to only allow specific origins in production
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://ai-bot-special.lenilani.com', 'https://lenilani.com', 'https://www.lenilani.com']
+  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error('CORS policy: Origin not allowed'), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Security: Rate limiting to prevent abuse
+const chatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const resetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // Limit reset requests
+  message: 'Too many reset requests, please try again later.',
+});
+
+// Security: Limit request body size to prevent DoS
+app.use(express.json({ limit: '10kb' }));
 
 // Initialize chain lazily to ensure env vars are loaded
 let chain = null;
@@ -778,29 +833,65 @@ app.get('/chat', (req, res) => {
 // Store conversation contexts for lead capture
 const conversationContexts = new Map();
 
-app.post('/chat', async (req, res) => {
+// Security: Clean up old sessions to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  const MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
+
+  for (const [sessionId, context] of conversationContexts.entries()) {
+    if (context.lastActivity && (now - context.lastActivity) > MAX_SESSION_AGE) {
+      conversationContexts.delete(sessionId);
+      console.log(`🧹 Cleaned up expired session: ${sessionId}`);
+    }
+  }
+}, 60 * 60 * 1000); // Run every hour
+
+app.post('/chat', chatLimiter, async (req, res) => {
   try {
     const { message, sessionId } = req.body;
 
+    // Security: Input validation
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
+    }
+
+    if (typeof message !== 'string') {
+      return res.status(400).json({ error: 'Invalid message format' });
+    }
+
+    if (message.length > 2000) {
+      return res.status(400).json({ error: 'Message too long. Maximum 2000 characters.' });
+    }
+
+    if (sessionId && (typeof sessionId !== 'string' || sessionId.length > 100)) {
+      return res.status(400).json({ error: 'Invalid session ID' });
     }
 
     // Check if API key is available
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error('ANTHROPIC_API_KEY is not set');
       return res.status(500).json({
-        error: 'Configuration error',
-        details: 'API key not configured. Please contact support.'
+        error: 'Service temporarily unavailable'
       });
+    }
+
+    // Security: Limit number of active sessions
+    if (conversationContexts.size > 1000) {
+      return res.status(503).json({ error: 'Service busy, please try again later' });
     }
 
     // Track conversation context
     const contextId = sessionId || 'default';
     if (!conversationContexts.has(contextId)) {
-      conversationContexts.set(contextId, { messages: [], contactInfo: {}, escalationRequested: false });
+      conversationContexts.set(contextId, {
+        messages: [],
+        contactInfo: {},
+        escalationRequested: false,
+        lastActivity: Date.now()
+      });
     }
     const context = conversationContexts.get(contextId);
+    context.lastActivity = Date.now(); // Update activity timestamp
     context.messages.push({ role: 'user', content: message });
 
     // Check for escalation request
@@ -876,16 +967,17 @@ app.post('/chat', async (req, res) => {
       contactInfo: context.contactInfo.email ? { email: context.contactInfo.email } : null
     });
   } catch (error) {
+    // Security: Log detailed error server-side but don't expose to client
     console.error('Error processing chat:', error);
     console.error('Stack trace:', error.stack);
+
     res.status(500).json({
-      error: 'An error occurred while processing your message',
-      details: error.message || 'Unknown error'
+      error: 'Sorry, I encountered an error. Please try again or contact support.'
     });
   }
 });
 
-app.post('/reset', (req, res) => {
+app.post('/reset', resetLimiter, (req, res) => {
   const { sessionId } = req.body;
   const contextId = sessionId || 'default'; // Match the /chat endpoint behavior
 
