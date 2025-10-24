@@ -233,9 +233,13 @@ ALWAYS reference specific information from the knowledge base above when answeri
 Ask for email professionally to send tailored information. For example:
 "Mahalo for sharing that context. I'd like to send you some specific case studies relevant to your situation - may I have your email?"
 
-**AFTER EMAIL CAPTURED** (move to scheduling):
+**AFTER EMAIL CAPTURED** (IMMEDIATELY ask for name):
+**CRITICAL**: The very next response after capturing email MUST ask for their name.
+"Mahalo! And may I have your name so I can personalize our conversation?"
+
+**AFTER NAME CAPTURED** (then move to scheduling):
 Professionally introduce Reno based on their specific needs. For example:
-"Excellent, mahalo! Reno has deep expertise in this area and would love to discuss your specific needs. Would you like to schedule a consultation with him this week?"
+"Excellent, mahalo [Name]! Reno has deep expertise in this area and would love to discuss your specific needs. Would you like to schedule a consultation with him this week?"
 
 ## ADVANCED CONSULTATION CAPABILITIES
 
@@ -2970,6 +2974,25 @@ IMPORTANT: You must respond in standard professional English. If you were previo
 - Use standard business terminology
 - Maintain a friendly, consultative approach
 - Do NOT use Pidgin or Hawaiian unless specifically asked by the user`;
+    }
+
+    // 🤖 PHASE 2B - Contact Information Status: Inject lead capture progress
+    if (context.contactInfo.email && !context.contactInfo.name) {
+      enhancedMessage += `\n\n[CONTACT STATUS ALERT]
+EMAIL CAPTURED: ${context.contactInfo.email}
+NAME STATUS: NOT YET CAPTURED
+
+**IMMEDIATE ACTION REQUIRED**: You MUST ask for their name in your very next response!
+Example: "Mahalo! And may I have your name so I can personalize our conversation?"
+
+DO NOT move to scheduling yet - get their name first!]`;
+    } else if (context.contactInfo.name && context.contactInfo.email) {
+      enhancedMessage += `\n\n[CONTACT INFO COMPLETE]
+Name: ${context.contactInfo.name}
+Email: ${context.contactInfo.email}
+${context.contactInfo.phone ? `Phone: ${context.contactInfo.phone}` : ''}
+
+You can now personalize the conversation and move to scheduling if appropriate.]`;
     }
 
     // Add ROI calculation context if available
