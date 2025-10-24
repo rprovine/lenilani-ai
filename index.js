@@ -2894,8 +2894,32 @@ app.post('/chat', chatLimiter, async (req, res) => {
     // Detect contact information in the message
     const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
     const phoneRegex = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/;
+    // Name patterns: "I'm John", "My name is Sarah", "This is Michael", "name's David"
+    const namePatterns = [
+      /(?:I'm|I am|my name is|this is|name's|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+      /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:here|speaking)/i
+    ];
+
     const emailMatch = message.match(emailRegex);
     const phoneMatch = message.match(phoneRegex);
+
+    // Try to extract name if we don't have it yet
+    if (!context.contactInfo.name) {
+      for (const pattern of namePatterns) {
+        const nameMatch = message.match(pattern);
+        if (nameMatch && nameMatch[1]) {
+          // Capitalize properly
+          const name = nameMatch[1].trim();
+          // Only accept if it looks like a real name (not common words)
+          const commonWords = ['test', 'demo', 'example', 'hello', 'hi', 'yes', 'no', 'okay', 'sure'];
+          if (!commonWords.includes(name.toLowerCase()) && name.length > 1) {
+            context.contactInfo.name = name;
+            console.log(`👤 Name detected: ${name}`);
+            break;
+          }
+        }
+      }
+    }
 
     if (emailMatch && !context.contactInfo.email) {
       context.contactInfo.email = emailMatch[0];
@@ -3001,8 +3025,19 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
         .join('\n\n');
 
       // 🤖 PHASE 3 - Automated Follow-Up: Include lead intelligence data
+      // Split name into first and last if provided
+      let firstname = '';
+      let lastname = '';
+      if (context.contactInfo.name) {
+        const nameParts = context.contactInfo.name.trim().split(/\s+/);
+        firstname = nameParts[0] || '';
+        lastname = nameParts.slice(1).join(' ') || '';
+      }
+
       const leadResult = await createOrUpdateContact({
         email: context.contactInfo.email,
+        firstname: firstname,
+        lastname: lastname,
         phone: context.contactInfo.phone || '',
         message: message,
         conversationSummary: conversationSummary,
