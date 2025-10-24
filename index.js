@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const nodemailer = require('nodemailer'); // 📧 PHASE 4A - Conversation Summary Emails
 const { Client } = require('@hubspot/api-client');
 const { ChatAnthropic } = require('@langchain/anthropic');
 const { ConversationChain } = require('langchain/chains');
@@ -13,6 +14,23 @@ const { BufferMemory } = require('langchain/memory');
 const { ChatPromptTemplate, MessagesPlaceholder } = require('@langchain/core/prompts');
 
 dotenv.config();
+
+// 📧 PHASE 4A - Conversation Summary Emails: Configure nodemailer
+let emailTransporter = null;
+if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  emailTransporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT || 587,
+    secure: process.env.EMAIL_SECURE === 'true',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+  console.log('✅ Email transporter initialized');
+} else {
+  console.warn('⚠️  Email not configured - conversation summary emails disabled');
+}
 
 // Load knowledge base
 const KNOWLEDGE_BASE = fs.readFileSync(
@@ -611,6 +629,200 @@ ${recommendedService ? `• Recommended Service: ${recommendedService}` : ''}
     console.log(`✅ Follow-up task created for contact ${contactId} - Priority: ${taskPriority}, Due: ${dueDate.toLocaleString()}`);
   } catch (error) {
     console.error('Error creating follow-up task:', error.message);
+  }
+}
+
+// 📅 PHASE 4A - Direct Appointment Scheduling: Generate available time slots
+function generateAvailableTimeSlots(requestedDate) {
+  const date = requestedDate ? new Date(requestedDate) : new Date();
+  const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+
+  // Business hours: Monday-Friday, 9 AM - 5 PM HST
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return []; // No availability on weekends
+  }
+
+  // Generate time slots from 9 AM to 5 PM in 30-minute intervals
+  const slots = [];
+  for (let hour = 9; hour < 17; hour++) {
+    for (let minute of [0, 30]) {
+      if (hour === 16 && minute === 30) break; // Last slot is 4:30 PM
+
+      const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+      const displayTime = formatTimeAMPM(hour, minute);
+
+      slots.push({
+        time: timeString,
+        display: displayTime,
+        available: true // In production, check actual calendar availability
+      });
+    }
+  }
+
+  return slots;
+}
+
+// Helper: Format time as AM/PM
+function formatTimeAMPM(hour, minute) {
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+  const displayMinute = minute.toString().padStart(2, '0');
+  return `${displayHour}:${displayMinute} ${ampm} HST`;
+}
+
+// 📅 PHASE 4A - Direct Appointment Scheduling: Create appointment booking in HubSpot
+async function createAppointmentBooking(contactId, bookingDetails) {
+  if (!hubspotClient) return;
+
+  try {
+    const { date, time, timezone, email, name, phone, message } = bookingDetails;
+
+    // Create a task for the appointment
+    const taskProperties = {
+      hs_timestamp: Date.now(),
+      hs_task_body: `📅 APPOINTMENT BOOKING REQUEST via AI Chatbot
+
+📍 Booking Details:
+• Date: ${date}
+• Time: ${time}
+• Timezone: ${timezone}
+• Requested by: ${name}
+• Email: ${email}
+${phone ? `• Phone: ${phone}` : ''}
+${message ? `• Message: ${message}` : ''}
+
+🎯 Action Required:
+1. Confirm appointment availability
+2. Send calendar invite to ${email}
+3. Add to Reno's calendar
+
+💡 This booking was made through the LeniLani AI chatbot interface.`,
+      hs_task_subject: `📅 Appointment Booking: ${name} - ${date} at ${time}`,
+      hs_task_status: 'NOT_STARTED',
+      hs_task_priority: 'HIGH',
+      hs_task_due_date: new Date().getTime() + (60 * 60 * 1000) // Due in 1 hour
+    };
+
+    const associations = [{
+      to: { id: contactId },
+      types: [{
+        associationCategory: 'HUBSPOT_DEFINED',
+        associationTypeId: 204 // Contact to Task association
+      }]
+    }];
+
+    await hubspotClient.crm.objects.tasks.basicApi.create({
+      properties: taskProperties,
+      associations
+    });
+
+    console.log(`📅 Appointment booking task created for ${name} on ${date} at ${time}`);
+  } catch (error) {
+    console.error('Error creating appointment booking:', error.message);
+  }
+}
+
+// 📧 PHASE 4A - Conversation Summary Emails: Send conversation summary email
+async function sendConversationSummaryEmail(recipientEmail, conversationData) {
+  if (!emailTransporter) {
+    console.warn('Email transporter not configured - skipping email send');
+    return { success: false, error: 'Email not configured' };
+  }
+
+  try {
+    const { messages, roiData, recommendedService, leadScore } = conversationData;
+
+    // Format conversation for email
+    const conversationHTML = messages.map(msg => {
+      const speaker = msg.role === 'user' ? '👤 You' : '🤖 LeniLani AI';
+      const messageClass = msg.role === 'user' ? 'user-message' : 'ai-message';
+      return `<div class="${messageClass}">
+        <strong>${speaker}:</strong><br/>
+        ${msg.content.replace(/\n/g, '<br/>')}
+      </div>`;
+    }).join('\n');
+
+    // Build ROI section if available
+    let roiSection = '';
+    if (roiData && roiData.potentialSavings > 0) {
+      roiSection = `
+      <div class="roi-section">
+        <h2>💰 Your Potential ROI</h2>
+        <p><strong>Annual Labor Cost:</strong> $${roiData.annualLaborCost.toLocaleString()}</p>
+        <p><strong>Potential Annual Savings:</strong> $${roiData.potentialSavings.toLocaleString()}</p>
+        <p><strong>ROI:</strong> ${roiData.roi}%</p>
+        <p><strong>Payback Period:</strong> ${roiData.paybackMonths} months</p>
+      </div>`;
+    }
+
+    // Build recommended service section
+    let serviceSection = '';
+    if (recommendedService) {
+      serviceSection = `
+      <div class="service-section">
+        <h2>🎯 Recommended Service</h2>
+        <p><strong>${recommendedService.service}</strong></p>
+        <p>Based on our conversation, this service aligns best with your needs.</p>
+      </div>`;
+    }
+
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px; }
+        .conversation { background: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .user-message { background: white; padding: 10px; margin: 10px 0; border-left: 3px solid #0066cc; }
+        .ai-message { background: #e8f4f8; padding: 10px; margin: 10px 0; border-left: 3px solid #00bcd4; }
+        .roi-section, .service-section { background: #fff9e6; padding: 15px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #ffc107; }
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; }
+        .cta-button { display: inline-block; background: #0066cc; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>🌺 Your LeniLani AI Conversation Summary</h1>
+        <p>Aloha! Here's a summary of our conversation</p>
+      </div>
+
+      ${roiSection}
+      ${serviceSection}
+
+      <div class="conversation">
+        <h2>💬 Conversation Transcript</h2>
+        ${conversationHTML}
+      </div>
+
+      <div style="text-align: center;">
+        <a href="${HUBSPOT_MEETING_LINK}" class="cta-button">Schedule a Free Consultation with Reno</a>
+      </div>
+
+      <div class="footer">
+        <p><strong>LeniLani Consulting</strong><br/>
+        Honolulu, Hawaii<br/>
+        <a href="mailto:reno@lenilani.com">reno@lenilani.com</a> | <a href="tel:+18087661164">(808) 766-1164</a><br/>
+        <a href="https://lenilani.com">www.lenilani.com</a></p>
+        <p style="font-size: 12px; color: #999;">This conversation summary was automatically generated by the LeniLani AI chatbot.</p>
+      </div>
+    </body>
+    </html>`;
+
+    const mailOptions = {
+      from: `"LeniLani Consulting" <${process.env.EMAIL_USER}>`,
+      to: recipientEmail,
+      subject: '🌺 Your LeniLani AI Conversation Summary',
+      html: htmlContent
+    };
+
+    await emailTransporter.sendMail(mailOptions);
+    console.log(`📧 Conversation summary email sent to ${recipientEmail}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending conversation summary email:', error.message);
+    return { success: false, error: error.message };
   }
 }
 
@@ -1532,6 +1744,77 @@ app.get('/api/meeting-info', async (req, res) => {
       error: 'Unable to fetch meeting information',
       bookingLink: HUBSPOT_MEETING_LINK
     });
+  }
+});
+
+// 📅 PHASE 4A - Direct Appointment Scheduling: Get available time slots
+app.get('/api/available-slots', async (req, res) => {
+  try {
+    const { date } = req.query; // Format: YYYY-MM-DD
+
+    // Generate available time slots for the requested date
+    // In production, this would integrate with HubSpot Calendar API
+    const slots = generateAvailableTimeSlots(date);
+
+    res.json({
+      date: date || new Date().toISOString().split('T')[0],
+      timezone: 'Pacific/Honolulu',
+      slots,
+      bookingLink: HUBSPOT_MEETING_LINK
+    });
+  } catch (error) {
+    console.error('Error fetching available slots:', error);
+    res.status(500).json({ error: 'Unable to fetch available time slots' });
+  }
+});
+
+// 📅 PHASE 4A - Direct Appointment Scheduling: Book appointment
+app.post('/api/book-appointment', async (req, res) => {
+  try {
+    const { email, name, phone, date, time, timezone, message, conversationContext } = req.body;
+
+    if (!email || !name || !date || !time) {
+      return res.status(400).json({ error: 'Missing required booking information' });
+    }
+
+    // Create or update contact in HubSpot
+    const contactResult = await createOrUpdateContact({
+      email,
+      firstname: name.split(' ')[0],
+      lastname: name.split(' ').slice(1).join(' ') || '',
+      phone: phone || '',
+      message: message || `Appointment booking request via AI chatbot for ${date} at ${time}`,
+      conversationSummary: conversationContext || ''
+    });
+
+    if (!contactResult.success) {
+      return res.status(500).json({ error: 'Failed to create contact' });
+    }
+
+    // Create appointment task/note in HubSpot
+    await createAppointmentBooking(contactResult.contactId, {
+      date,
+      time,
+      timezone: timezone || 'Pacific/Honolulu',
+      email,
+      name,
+      phone,
+      message
+    });
+
+    res.json({
+      success: true,
+      message: 'Appointment request received! Reno will confirm your booking shortly.',
+      bookingDetails: {
+        date,
+        time,
+        timezone: timezone || 'Pacific/Honolulu'
+      },
+      contactId: contactResult.contactId
+    });
+  } catch (error) {
+    console.error('Error booking appointment:', error);
+    res.status(500).json({ error: 'Unable to book appointment' });
   }
 });
 
