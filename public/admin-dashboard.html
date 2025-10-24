@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Analytics Dashboard - LeniLani AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .header .nav-links {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .header .nav-links a {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .header .nav-links a:hover {
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            color: #333;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .subtitle {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .stat-card.hot { border-left: 4px solid #ef4444; }
+        .stat-card.warm { border-left: 4px solid #f59e0b; }
+        .stat-card.qualified { border-left: 4px solid #3b82f6; }
+        .stat-card.cold { border-left: 4px solid #64748b; }
+        .stat-card.success { border-left: 4px solid #10b981; }
+        .stat-card.primary { border-left: 4px solid #8b5cf6; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .chart-card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 LeniLani AI Analytics Dashboard</h1>
+            <p>Real-time chatbot performance metrics and insights</p>
+            <div class="nav-links">
+                <a href="/">← Back to Chatbot</a>
+                <a href="/stats">📈 Public Stats</a>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">Loading analytics data...</div>
+
+        <div id="dashboard" style="display: none;">
+            <!-- Key Metrics -->
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Conversations Over Time</h3>
+                    <canvas id="conversationsChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Lead Score Distribution</h3>
+                    <canvas id="leadsChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Service Recommendations</h3>
+                    <canvas id="servicesChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Conversion Funnel</h3>
+                    <canvas id="funnelChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh Data</button>
+    </div>
+
+    <script>
+        let charts = {};
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/api/analytics/dashboard');
+                const data = await response.json();
+
+                // Hide loading, show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+
+                // Render stats
+                renderStats(data);
+
+                // Render charts
+                renderConversationsChart(data.timeSeriesData);
+                renderLeadsChart(data.leadQualityDistribution || data.leadDistribution);
+                renderServicesChart(data.serviceBreakdown);
+                renderFunnelChart(data);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                document.getElementById('loading').textContent = 'Error loading dashboard data';
+            }
+        }
+
+        function renderStats(data) {
+            const statsGrid = document.getElementById('statsGrid');
+
+            const leadDist = data.leadQualityDistribution || data.leadDistribution || [];
+
+            const stats = [
+                {
+                    label: 'Total Conversations',
+                    value: data.summary.totalConversations || 0,
+                    subtitle: `${data.summary.averageMessages || '0'} avg messages/chat`,
+                    class: 'primary'
+                },
+                {
+                    label: 'Email Capture Rate',
+                    value: data.performance.emailConversionRate || '0%',
+                    subtitle: `${data.summary.emailsCaptured || 0} emails captured`,
+                    class: 'success'
+                },
+                {
+                    label: 'Demo Requests',
+                    value: data.summary.demosRequested || 0,
+                    subtitle: `${data.performance.demoConversionRate || '0%'} conversion rate`,
+                    class: 'success'
+                },
+                {
+                    label: 'Hot Leads',
+                    value: leadDist[0]?.count || 0,
+                    subtitle: `${leadDist[0]?.percentage || 0}% of all leads`,
+                    class: 'hot'
+                },
+                {
+                    label: 'Warm Leads',
+                    value: leadDist[1]?.count || 0,
+                    subtitle: `${leadDist[1]?.percentage || 0}% of all leads`,
+                    class: 'warm'
+                },
+                {
+                    label: 'Qualified Leads',
+                    value: leadDist[2]?.count || 0,
+                    subtitle: `${leadDist[2]?.percentage || 0}% of all leads`,
+                    class: 'qualified'
+                },
+                {
+                    label: 'Cold Leads',
+                    value: leadDist[3]?.count || 0,
+                    subtitle: `${leadDist[3]?.percentage || 0}% of all leads`,
+                    class: 'cold'
+                },
+                {
+                    label: 'System Uptime',
+                    value: data.summary.uptime || data.performance.uptime || '0 hours',
+                    subtitle: `${data.performance.conversationsPerHour || 0} conversations/hour`,
+                    class: 'success'
+                }
+            ];
+
+            statsGrid.innerHTML = stats.map(stat => `
+                <div class="stat-card ${stat.class}">
+                    <div class="label">${stat.label}</div>
+                    <div class="value">${stat.value}</div>
+                    <div class="subtitle">${stat.subtitle}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderConversationsChart(timeSeriesData) {
+            const ctx = document.getElementById('conversationsChart');
+
+            if (charts.conversations) {
+                charts.conversations.destroy();
+            }
+
+            charts.conversations = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeSeriesData.map(d => d.date),
+                    datasets: [{
+                        label: 'Conversations',
+                        data: timeSeriesData.map(d => d.conversations),
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function renderLeadsChart(leadDistribution) {
+            const ctx = document.getElementById('leadsChart');
+
+            if (charts.leads) {
+                charts.leads.destroy();
+            }
+
+            charts.leads = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: leadDistribution.map(l => l.category),
+                    datasets: [{
+                        data: leadDistribution.map(l => l.count),
+                        backgroundColor: [
+                            '#ef4444',
+                            '#f59e0b',
+                            '#3b82f6',
+                            '#64748b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function renderServicesChart(serviceBreakdown) {
+            const ctx = document.getElementById('servicesChart');
+
+            if (charts.services) {
+                charts.services.destroy();
+            }
+
+            charts.services = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: serviceBreakdown.map(s => s.service),
+                    datasets: [{
+                        label: 'Recommendations',
+                        data: serviceBreakdown.map(s => s.count),
+                        backgroundColor: '#8b5cf6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function renderFunnelChart(data) {
+            const ctx = document.getElementById('funnelChart');
+
+            if (charts.funnel) {
+                charts.funnel.destroy();
+            }
+
+            const funnelData = [
+                { stage: 'Conversations', value: data.summary.totalConversations || 0 },
+                { stage: 'Emails Captured', value: data.summary.emailsCaptured || 0 },
+                { stage: 'Demo Requests', value: data.summary.demosRequested || 0 }
+            ];
+
+            charts.funnel = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: funnelData.map(d => d.stage),
+                    datasets: [{
+                        label: 'Count',
+                        data: funnelData.map(d => d.value),
+                        backgroundColor: [
+                            '#8b5cf6',
+                            '#0ea5e9',
+                            '#10b981'
+                        ]
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Load dashboard on page load
+        loadDashboard();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+</html>

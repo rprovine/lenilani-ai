@@ -199,8 +199,27 @@
         .actions {
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 10px;
             padding: 10px;
             border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .stats-link {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+
+        .stats-link:hover {
+            transform: scale(1.05);
         }
 
         .escalation-card {
@@ -410,6 +429,7 @@
         <div class="header">
             <h1>LeniLani AI</h1>
             <p>LeniLani Consulting - Premier AI & Technology Solutions</p>
+            <div style="font-size: 8px; opacity: 0.5;">v2.1-scroll-fix</div>
         </div>
 
         <!-- Phase 4 - Returning Visitor Recognition -->
@@ -428,7 +448,7 @@
                 </div>
                 <div class="stat-item">
                     <span>🌟</span>
-                    <span><strong>First Year</strong> in Business</span>
+                    <span><strong>30+ Years</strong> Combined Experience</span>
                 </div>
             </div>
         </div>
@@ -489,6 +509,7 @@
         <div class="actions">
             <button class="clear-btn" onclick="clearChat()">Clear Chat</button>
             <button class="human-btn" onclick="requestHumanHelp()">👤 Talk to Human</button>
+            <a href="/stats" target="_blank" class="stats-link">📊 Live Stats</a>
         </div>
     </div>
 
@@ -499,10 +520,17 @@
         const quickstartContainer = document.getElementById('quickstartContainer');
 
         // Smart scroll - only auto-scroll if user is already near the bottom
-        function smartScroll() {
+        // force = true for user actions (clicks, sending messages) - always scrolls
+        // force = false for bot responses - only scrolls if already at bottom
+        function smartScroll(force = false) {
+            if (force) {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                return;
+            }
+
             const isNearBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 150;
             if (isNearBottom) {
-                smartScroll();
+                chatContainer.scrollTop = chatContainer.scrollHeight;
             }
         }
 
@@ -518,11 +546,11 @@
             
             // Add the quickstart message to chat
             addMessage(prompt, 'user');
-            
+
             // Show typing indicator
             typingIndicator.style.display = 'block';
-            smartScroll();
-            
+            smartScroll(true);
+
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
@@ -668,7 +696,7 @@
                 chatContainer.appendChild(suggestionsContainer);
             }
 
-            smartScroll();
+            smartScroll(sender === 'user');
         }
 
         function handleSuggestionClick(suggestionText) {
@@ -693,7 +721,7 @@
 
             // Show typing indicator
             typingIndicator.style.display = 'block';
-            smartScroll();
+            smartScroll(false);
 
             try {
                 const response = await fetch('/chat', {
@@ -755,8 +783,9 @@
         }
 
         function requestHumanHelp() {
-            // Send escalation request message
-            sendMessageToBackend("I'd like to speak with a human");
+            console.log('🔥 NEW VERSION - requestHumanHelp called - showing card directly');
+            // Show escalation card immediately
+            showEscalationCard();
         }
 
         function showEscalationCard() {
@@ -794,7 +823,11 @@
             `;
 
             chatContainer.appendChild(escalationCard);
-            smartScroll();
+
+            // Smooth scroll to show the notice (which will also show the card below it)
+            setTimeout(() => {
+                noticeDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
         }
 
         // ===== PHASE 4 FEATURES =====
@@ -836,6 +869,7 @@
 
         // Phase 4A - Appointment Booking
         function showAppointmentBooking() {
+            console.log('🔥 NEW VERSION - showAppointmentBooking called');
             const bookingCard = document.createElement('div');
             bookingCard.classList.add('escalation-card');
             bookingCard.style.background = '#f0fdf4';
@@ -854,7 +888,14 @@
             `;
 
             chatContainer.appendChild(bookingCard);
-            smartScroll();
+            console.log('📦 Booking card appended, scrollHeight:', chatContainer.scrollHeight);
+
+            // Smooth scroll to show the card
+            setTimeout(() => {
+                console.log('📜 Attempting scroll - before:', chatContainer.scrollTop, 'target:', chatContainer.scrollHeight);
+                bookingCard.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                console.log('📜 Scroll initiated');
+            }, 50);
         }
 
         // Initialize Phase 4 features on page load

@@ -8,6 +8,7 @@ const path = require('path');
 const axios = require('axios');
 const nodemailer = require('nodemailer'); // 📧 PHASE 4A - Conversation Summary Emails
 const { Client } = require('@hubspot/api-client');
+const { createClient } = require('@supabase/supabase-js');
 const { ChatAnthropic } = require('@langchain/anthropic');
 const { ConversationChain } = require('langchain/chains');
 const { BufferMemory } = require('langchain/memory');
@@ -1730,9 +1731,8 @@ app.get('/api/analytics', (req, res) => {
       ? ((analyticsData.emailsCaptured / totalConversations) * 100).toFixed(1)
       : 0;
 
-    // Calculate uptime
-    const startTime = new Date(analyticsData.startTime);
-    const uptime = Date.now() - startTime.getTime();
+    // Calculate uptime (server uptime, not analytics tracking time)
+    const uptime = Date.now() - serverStartTime;
     const uptimeHours = (uptime / (1000 * 60 * 60)).toFixed(1);
 
     res.json({
@@ -1865,8 +1865,8 @@ app.get('/api/analytics/dashboard', (req, res) => {
       percentage: totalConversations > 0 ? ((count / totalConversations) * 100).toFixed(1) : 0
     })).sort((a, b) => b.count - a.count);
 
-    // Performance metrics
-    const uptimeMs = Date.now() - new Date(analyticsData.startTime).getTime();
+    // Performance metrics (use server uptime, not analytics tracking time)
+    const uptimeMs = Date.now() - serverStartTime;
     const uptimeHours = (uptimeMs / (1000 * 60 * 60)).toFixed(1);
     const conversationsPerHour = uptimeHours > 0 ? (totalConversations / parseFloat(uptimeHours)).toFixed(2) : 0;
 
@@ -2130,8 +2130,8 @@ const socialProofData = {
     conversationsToday: 0,
     consultationsBookedToday: 0,
     activeVisitors: 0,
-    totalClientsServed: 10, // Static baseline - first year in business
-    yearsInBusiness: 1, // First year
+    totalClientsServed: 10, // Static baseline - Hawaii businesses served
+    combinedYearsExperience: 30, // Combined team experience
     averageResponseTime: '< 2 minutes'
   },
   lastReset: new Date().toDateString()
@@ -2469,32 +2469,123 @@ app.get('/chat', (req, res) => {
 const conversationContexts = new Map();
 
 // 🤖 PHASE 3 - Conversation Analytics: Track chatbot performance metrics
-const analyticsData = {
-  totalConversations: 0,
-  totalMessages: 0,
-  emailsCaptured: 0,
-  phonesCaptured: 0,
-  escalationsRequested: 0,
-  roiCalculations: 0,
-  serviceRecommendations: {
-    'AI Chatbot': 0,
-    'Business Intelligence': 0,
-    'System Integration': 0,
-    'Fractional CTO': 0,
-    'Marketing Automation': 0
-  },
-  leadScores: {
-    hot: 0,    // 80-100
-    warm: 0,   // 60-79
-    qualified: 0, // 40-59
-    cold: 0    // 0-39
-  },
-  demosRequested: 0,
-  pidginModeActivations: 0,
-  averageMessagesPerConversation: 0,
-  conversationsByDay: {},
-  startTime: new Date().toISOString()
-};
+// 💾 Analytics persistence with Supabase
+const supabaseUrl = process.env.SUPABASE_URL || 'http://127.0.0.1:54321';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// In-memory cache of analytics data
+let analyticsData = null;
+
+// Load analytics from Supabase
+async function loadAnalytics() {
+  try {
+    const { data, error } = await supabase
+      .from('analytics')
+      .select('*')
+      .eq('id', 1)
+      .single();
+
+    if (error) {
+      console.error('❌ Error loading analytics from Supabase:', error.message);
+      return null;
+    }
+
+    // Convert database format to app format
+    analyticsData = {
+      totalConversations: data.total_conversations,
+      totalMessages: data.total_messages,
+      emailsCaptured: data.emails_captured,
+      phonesCaptured: data.phones_captured,
+      escalationsRequested: data.escalations_requested,
+      roiCalculations: data.roi_calculations,
+      serviceRecommendations: data.service_recommendations,
+      leadScores: data.lead_scores,
+      demosRequested: data.demos_requested,
+      pidginModeActivations: data.pidgin_mode_activations,
+      averageMessagesPerConversation: parseFloat(data.average_messages_per_conversation),
+      conversationsByDay: data.conversations_by_day,
+      startTime: data.start_time
+    };
+
+    console.log('📊 Loaded analytics from Supabase:', analyticsData.totalConversations, 'conversations');
+    return analyticsData;
+  } catch (error) {
+    console.error('❌ Unexpected error loading analytics:', error.message);
+    return null;
+  }
+}
+
+// Save analytics to Supabase
+async function saveAnalytics() {
+  if (!analyticsData) {
+    console.error('❌ No analytics data to save');
+    return;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('analytics')
+      .update({
+        total_conversations: analyticsData.totalConversations,
+        total_messages: analyticsData.totalMessages,
+        emails_captured: analyticsData.emailsCaptured,
+        phones_captured: analyticsData.phonesCaptured,
+        escalations_requested: analyticsData.escalationsRequested,
+        roi_calculations: analyticsData.roiCalculations,
+        service_recommendations: analyticsData.serviceRecommendations,
+        lead_scores: analyticsData.leadScores,
+        demos_requested: analyticsData.demosRequested,
+        pidgin_mode_activations: analyticsData.pidginModeActivations,
+        average_messages_per_conversation: analyticsData.averageMessagesPerConversation,
+        conversations_by_day: analyticsData.conversationsByDay
+      })
+      .eq('id', 1);
+
+    if (error) {
+      console.error('❌ Error saving analytics to Supabase:', error.message);
+    }
+  } catch (error) {
+    console.error('❌ Unexpected error saving analytics:', error.message);
+  }
+}
+
+// Track server start time for uptime calculations
+const serverStartTime = Date.now();
+
+// Initialize analytics on startup
+(async () => {
+  await loadAnalytics();
+  if (!analyticsData) {
+    console.log('📊 No existing analytics found, starting fresh');
+    analyticsData = {
+      totalConversations: 0,
+      totalMessages: 0,
+      emailsCaptured: 0,
+      phonesCaptured: 0,
+      escalationsRequested: 0,
+      roiCalculations: 0,
+      serviceRecommendations: {
+        'AI Chatbot': 0,
+        'Business Intelligence': 0,
+        'System Integration': 0,
+        'Fractional CTO': 0,
+        'Marketing Automation': 0
+      },
+      leadScores: {
+        hot: 0,    // 80-100
+        warm: 0,   // 60-79
+        qualified: 0, // 40-59
+        cold: 0    // 0-39
+      },
+      demosRequested: 0,
+      pidginModeActivations: 0,
+      averageMessagesPerConversation: 0,
+      conversationsByDay: {},
+      startTime: new Date().toISOString()
+    };
+  }
+})();
 
 // Security: Clean up old sessions to prevent memory leaks
 setInterval(() => {
@@ -2565,6 +2656,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
       analyticsData.totalConversations++;
       const today = new Date().toISOString().split('T')[0];
       analyticsData.conversationsByDay[today] = (analyticsData.conversationsByDay[today] || 0) + 1;
+      saveAnalytics();
 
       // 🎯 PHASE 4B - Social Proof: Track new conversation activity
       addSocialProofActivity('conversation', {
@@ -2596,6 +2688,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
         if (!context.roiCalculated) {
           analyticsData.roiCalculations++;
           context.roiCalculated = true;
+          saveAnalytics();
         }
       }
     }
@@ -2633,6 +2726,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
       else if (leadScore >= 60) analyticsData.leadScores.warm++;
       else if (leadScore >= 40) analyticsData.leadScores.qualified++;
       else analyticsData.leadScores.cold++;
+      saveAnalytics();
     }
 
     // 🤖 PHASE 3 - Demo Request Feature: Check for demo request
@@ -2653,6 +2747,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
         if (!context.demoRequested) {
           analyticsData.demosRequested++;
           context.demoRequested = true;
+          saveAnalytics();
 
           // 🎯 PHASE 4B - Social Proof: Track demo request activity
           addSocialProofActivity('demo_request', {
@@ -2673,6 +2768,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
       if (!context.pidginActivated) {
         analyticsData.pidginModeActivations++;
         context.pidginActivated = true;
+        saveAnalytics();
       }
     } else if (pidginRequest === 'exit') {
       context.pidginMode = false;
@@ -2687,6 +2783,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
       // 🤖 PHASE 3 - Analytics: Track escalation request
       analyticsData.escalationsRequested++;
+      saveAnalytics();
 
       // Create high-priority note in HubSpot if contact exists
       if (context.contactId && hubspotClient) {
@@ -2706,6 +2803,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
       // 🤖 PHASE 3 - Analytics: Track email capture
       analyticsData.emailsCaptured++;
+      saveAnalytics();
     }
     if (phoneMatch && !context.contactInfo.phone) {
       context.contactInfo.phone = phoneMatch[0];
@@ -2713,6 +2811,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
       // 🤖 PHASE 3 - Analytics: Track phone capture
       analyticsData.phonesCaptured++;
+      saveAnalytics();
     }
 
     // Initialize chain if needed
@@ -2838,6 +2937,15 @@ app.post('/reset', resetLimiter, (req, res) => {
   }
 
   res.json({ message: 'Conversation history cleared' });
+});
+
+// Route aliases for cleaner URLs
+app.get('/stats', (req, res) => {
+  res.sendFile(__dirname + '/public/stats.html');
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(__dirname + '/public/admin-dashboard.html');
 });
 
 // Serve static files AFTER routes to prevent conflicts
