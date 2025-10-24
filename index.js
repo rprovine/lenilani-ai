@@ -3300,7 +3300,13 @@ app.get('/admin', (req, res) => {
 });
 
 // 🔧 Diagnostic endpoint - check HubSpot and environment configuration
+// SECURITY: Only available in development mode
 app.get('/api/diagnostic', (req, res) => {
+  // Only allow in development
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Diagnostic endpoint not available in production' });
+  }
+
   try {
     const client = getHubSpotClient();
     res.json({
@@ -3310,12 +3316,12 @@ app.get('/api/diagnostic', (req, res) => {
         clientIsNull: client === null,
         apiKeyConfigured: !!process.env.HUBSPOT_API_KEY,
         apiKeyLength: process.env.HUBSPOT_API_KEY ? process.env.HUBSPOT_API_KEY.length : 0,
-        apiKeyPrefix: process.env.HUBSPOT_API_KEY ? process.env.HUBSPOT_API_KEY.substring(0, 15) + '...' : 'not set',
+        // SECURITY: Don't expose any part of the API key
         initError: hubspotInitError ? hubspotInitError.message : null
       },
       supabase: {
-        configured: !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY),
-        url: process.env.SUPABASE_URL ? process.env.SUPABASE_URL.substring(0, 30) + '...' : 'not set'
+        configured: !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY)
+        // SECURITY: Don't expose URL or key parts
       },
       anthropic: {
         configured: !!process.env.ANTHROPIC_API_KEY,
@@ -3324,7 +3330,8 @@ app.get('/api/diagnostic', (req, res) => {
       environment: process.env.NODE_ENV || 'development'
     });
   } catch (error) {
-    res.status(500).json({ error: error.message, stack: error.stack });
+    // SECURITY: Don't expose stack traces
+    res.status(500).json({ error: 'Diagnostic check failed' });
   }
 });
 

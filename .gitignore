@@ -7,3 +7,12 @@ build/
 .vscode/
 .idea/
 .vercel
+
+# Test files (may contain credentials)
+check-*.js
+test-*.js
+migrate-*.js
+import-*.js
+populate-*.js
+simulate-*.js
+*-test-*.js

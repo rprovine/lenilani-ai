@@ -82,6 +82,9 @@ langchain-chatbot-lenilani/
 ├── lenilani-knowledge-base.md     # Comprehensive company knowledge base
 ├── KNOWLEDGE-BASE-UPDATE-GUIDE.md # Guide for updating the knowledge base
 ├── HUBSPOT-INTEGRATION-GUIDE.md   # HubSpot meeting integration guide
+├── HUBSPOT-WORKFLOWS-GUIDE.md     # HubSpot workflow automation guide
+├── hubspot-email-templates.json   # Email templates for HubSpot workflows
+├── create-hubspot-properties.js   # Script to create custom properties
 ├── public/
 │   ├── landing.html                # Marketing landing page
 │   ├── index.html                  # Chatbot interface (with HubSpot booking)
@@ -175,6 +178,22 @@ HUBSPOT_API_KEY=pat-na1-your-token-here
 ```
 
 See `HUBSPOT-INTEGRATION-GUIDE.md` for detailed setup instructions.
+
+### HubSpot Workflow Automation
+
+The chatbot includes comprehensive workflow automation for lead nurturing:
+
+- **10 Automated Workflows** - From welcome emails to post-meeting conversion
+- **8 Professional Email Templates** - Compelling copy with Hawaii-focused messaging
+- **Service-Specific Nurture Sequences** - Tailored emails for each service type
+- **High-Priority Lead Fast-Tracking** - Automatic alerts for valuable opportunities
+- **Re-engagement Automation** - Win back cold leads automatically
+
+**Setup Instructions**: See `HUBSPOT-WORKFLOWS-GUIDE.md` for step-by-step workflow implementation
+
+**Email Templates**: All copy ready to use in `hubspot-email-templates.json`
+
+**Custom Properties**: AI-powered lead scoring and ROI calculations already configured in HubSpot
 
 ### API Endpoints
 
