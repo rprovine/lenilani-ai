@@ -250,16 +250,24 @@ When clients mention business challenges, automatically:
 ## 💰 ROI CALCULATOR & VALUE DEMONSTRATION
 **CRITICAL**: When you receive [INTERNAL CONTEXT] with ROI calculations, YOU MUST mention the specific dollar amounts naturally in your response, even in the first exchange.
 
+**IMPORTANT - Be Transparent About Rates**:
+- We use Hawaii-specific labor rates based on market data (15% premium over national average)
+- Rates vary by work type: admin ($25/hr), reporting/analytics ($42/hr), customer support ($23/hr), IT ($55/hr), marketing ($35/hr)
+- Always mention the rate we used: "At Hawaii's market rate of about $42/hour for reporting work..."
+- This builds credibility - we're using real data, not inflating numbers
+
 When users mention time spent on tasks and INTERNAL CONTEXT provides ROI data:
-- ALWAYS mention the calculated annual cost and potential savings
-- Example: "Aloha! That's a significant time investment - at $50/hour, that's roughly $52,000 per year in labor costs. What types of reports are you creating?"
+- ALWAYS mention the calculated annual cost
+- ALWAYS reference the hourly rate being used
+- Example: "Aloha! That's a significant time investment - at Hawaii's market rate of about $42/hour for reporting work, that's roughly $43,680 per year in labor costs. What types of reports are you creating?"
 - Keep it conversational but ALWAYS include the dollar figures from INTERNAL CONTEXT
 
 If INTERNAL CONTEXT shows ROI calculation:
 - Use the EXACT numbers provided in brackets
+- Mention the hourly rate for transparency
 - Make it feel natural, not robotic
 - Still ask a follow-up question to continue discovery
-- Example format: "[Pain acknowledgment + ROI dollar amount]. [Follow-up question]?"
+- Example format: "[Pain acknowledgment] + [mention rate] + [ROI dollar amount]. [Follow-up question]?"
 
 **Success Stories** (use generically since we don't have specific case studies):
 - Tourism industry: "We've helped Hawaii tourism businesses handle 80% of inquiries automatically, reducing response time from hours to seconds."
@@ -676,6 +684,43 @@ function detectEscalation(message) {
   return escalationPhrases.some(phrase => lowerMessage.includes(phrase));
 }
 
+// ROI Calculator: Determine realistic hourly rate based on work type
+function determineHourlyRate(message) {
+  const lowerMessage = message.toLowerCase();
+
+  // Hawaii labor rates (15% premium over national average for cost of living)
+  // Conservative estimates based on BLS data and Hawaii-specific adjustments
+
+  // Data entry, manual tasks, administrative work: ~$25/hr in Hawaii
+  if (lowerMessage.match(/data entry|manual|administrative|clerical|filing|typing/)) {
+    return 25;
+  }
+
+  // Spreadsheets, reporting, business analysis: ~$42/hr in Hawaii
+  if (lowerMessage.match(/spreadsheet|excel|report|dashboard|analytics|bi|business intelligence/)) {
+    return 42;
+  }
+
+  // Customer support, service desk: ~$23/hr in Hawaii
+  if (lowerMessage.match(/customer (support|service)|help desk|answering (questions|calls)|support tickets/)) {
+    return 23;
+  }
+
+  // IT/technical work: ~$55/hr in Hawaii
+  if (lowerMessage.match(/technical|it support|system|infrastructure|development|coding/)) {
+    return 55;
+  }
+
+  // Marketing tasks: ~$35/hr in Hawaii
+  if (lowerMessage.match(/marketing|social media|campaigns|email|content/)) {
+    return 35;
+  }
+
+  // General business operations (conservative default): ~$32/hr in Hawaii
+  // This is slightly below the national median wage to be conservative
+  return 32;
+}
+
 // ROI Calculator: Extract time/cost information from conversation
 function extractROIData(message) {
   const lowerMessage = message.toLowerCase();
@@ -689,17 +734,33 @@ function extractROIData(message) {
   // Pattern: "costs us $5000 per month" or "losing $5k monthly"
   const monthlyCostMatch = lowerMessage.match(/(?:cost|losing|spend|waste)(?:ing|s)?\s*(?:us)?\s*\$?(\d+)k?\s*(?:per|\/|a|each)?\s*month/i);
 
+  // Determine appropriate hourly rate based on work type
+  const determinedRate = determineHourlyRate(message);
+
   return {
     hoursPerWeek: hoursPerWeekMatch ? parseInt(hoursPerWeekMatch[1]) : null,
-    hourlyRate: hourlyRateMatch ? parseInt(hourlyRateMatch[1]) : null,
+    hourlyRate: hourlyRateMatch ? parseInt(hourlyRateMatch[1]) : determinedRate,
     monthlyCost: monthlyCostMatch ? parseInt(monthlyCostMatch[1]) * (monthlyCostMatch[1].includes('k') ? 1000 : 1) : null,
     hasTimeData: !!hoursPerWeekMatch,
-    hasCostData: !!(hourlyRateMatch || monthlyCostMatch)
+    hasCostData: !!(hourlyRateMatch || monthlyCostMatch),
+    workType: determineWorkType(message), // For transparency in messaging
+    rateSource: hourlyRateMatch ? 'user-provided' : 'hawaii-market-rate'
   };
 }
 
+// Helper: Determine work type for transparent messaging
+function determineWorkType(message) {
+  const lowerMessage = message.toLowerCase();
+  if (lowerMessage.match(/data entry|manual|administrative/)) return 'administrative work';
+  if (lowerMessage.match(/spreadsheet|excel|report|dashboard|analytics/)) return 'business analysis/reporting';
+  if (lowerMessage.match(/customer (support|service)|help desk/)) return 'customer support';
+  if (lowerMessage.match(/technical|it support|system/)) return 'technical/IT work';
+  if (lowerMessage.match(/marketing|social media|campaigns/)) return 'marketing tasks';
+  return 'business operations';
+}
+
 // Calculate ROI and format response
-function calculateROI(hoursPerWeek, hourlyRate = 50) {
+function calculateROI(hoursPerWeek, hourlyRate) {
   const annualLaborCost = hoursPerWeek * hourlyRate * 52;
   const leniLaniAnnualCost = 1500 * 12; // $18,000/year
   const potentialSavings = annualLaborCost - leniLaniAnnualCost;
@@ -712,6 +773,7 @@ function calculateROI(hoursPerWeek, hourlyRate = 50) {
     potentialSavings,
     efficiencyGain,
     timeSaved,
+    hourlyRate, // Include for transparency
     roi: potentialSavings > 0 ? ((potentialSavings / leniLaniAnnualCost) * 100).toFixed(0) : 0,
     paybackMonths: potentialSavings > 0 ? Math.ceil(leniLaniAnnualCost / (potentialSavings / 12)) : null
   };
@@ -1248,7 +1310,22 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
     // Add ROI calculation context if available
     if (context.roiData && context.roiData.potentialSavings > 0) {
-      enhancedMessage += `\n\n[INTERNAL CONTEXT - Use naturally in your response: The user mentioned ${context.roiData.hoursPerWeek} hours/week. At $${context.roiData.hourlyRate || 50}/hour, that's $${context.roiData.annualLaborCost.toLocaleString()}/year in labor costs. Our $1,500/month solution would cost $18,000/year. Potential annual savings: $${context.roiData.potentialSavings.toLocaleString()} (${context.roiData.roi}% ROI). Payback period: ${context.roiData.paybackMonths} months.]`;
+      const rateExplanation = context.roiData.rateSource === 'user-provided'
+        ? `using their stated rate of $${context.roiData.hourlyRate}/hour`
+        : `based on Hawaii market rates for ${context.roiData.workType} (approximately $${context.roiData.hourlyRate}/hour)`;
+
+      enhancedMessage += `\n\n[INTERNAL CONTEXT - Use naturally in your response:
+
+ROI CALCULATION:
+- User mentioned: ${context.roiData.hoursPerWeek} hours/week on ${context.roiData.workType}
+- Hourly rate: $${context.roiData.hourlyRate}/hour (${rateExplanation})
+- Annual labor cost: ${context.roiData.hoursPerWeek} hrs/week × $${context.roiData.hourlyRate}/hr × 52 weeks = $${context.roiData.annualLaborCost.toLocaleString()}/year
+- Our solution cost: $1,500/month × 12 = $18,000/year
+- Potential annual savings: $${context.roiData.potentialSavings.toLocaleString()}
+- ROI: ${context.roiData.roi}%
+- Payback period: ${context.roiData.paybackMonths} months
+
+IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data for credibility. Be transparent about your calculations.]`;
     }
 
     // Add service recommendation context if available
