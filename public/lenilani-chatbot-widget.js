@@ -106,9 +106,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
         .lenilani-chat-header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .lenilani-header-text {
             flex: 1;
         }
 
@@ -353,8 +362,8 @@
         .lenilani-social-proof {
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
             border-bottom: 1px solid #bae6fd;
-            padding: 6px 12px;
-            font-size: 9px;
+            padding: 8px 12px;
+            font-size: 11px;
             color: #0369a1;
             text-align: center;
             font-weight: 500;
@@ -363,14 +372,14 @@
         .lenilani-social-stats {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
         .lenilani-stat-item {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
         }
 
         .lenilani-stat-item strong {
@@ -379,21 +388,21 @@
 
         /* Language selector */
         .lenilani-language-selector {
-            margin-top: 6px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 6px;
+            gap: 4px;
+            flex-shrink: 0;
         }
 
         .lenilani-language-label {
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 600;
             opacity: 0.9;
+            white-space: nowrap;
         }
 
         .lenilani-language-select {
-            padding: 3px 8px;
+            padding: 4px 8px;
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 12px;
@@ -562,14 +571,16 @@
         <div id="lenilani-chat-window">
             <div class="lenilani-chat-header">
                 <div class="lenilani-chat-header-content">
-                    <h3>LeniLani AI</h3>
-                    <p>AI & Technology Solutions</p>
+                    <div class="lenilani-header-text">
+                        <h3>LeniLani AI</h3>
+                        <p>AI & Technology Solutions</p>
+                    </div>
                     <div class="lenilani-language-selector">
-                        <span class="lenilani-language-label">Language:</span>
+                        <span class="lenilani-language-label">Lang:</span>
                         <select class="lenilani-language-select" id="lenilani-language">
-                            <option value="english">English</option>
-                            <option value="pidgin">Hawaiian Pidgin</option>
-                            <option value="hawaiian">ʻŌlelo Hawaiʻi</option>
+                            <option value="english">EN</option>
+                            <option value="pidgin">Pidgin</option>
+                            <option value="hawaiian">HI</option>
                         </select>
                     </div>
                 </div>
