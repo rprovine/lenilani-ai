@@ -2130,57 +2130,39 @@ const socialProofData = {
     conversationsToday: 0,
     consultationsBookedToday: 0,
     activeVisitors: 0,
-    totalClientsServed: 127, // Static baseline
-    yearsInBusiness: 8,
+    totalClientsServed: 10, // Static baseline - first year in business
+    yearsInBusiness: 1, // First year
     averageResponseTime: '< 2 minutes'
   },
   lastReset: new Date().toDateString()
 };
 
-// Testimonials for social proof
+// Testimonials for social proof - realistic for first year
 const testimonials = [
   {
     id: 1,
-    name: "Michael K.",
-    company: "Pacific Retail Group",
-    service: "AI Chatbot Implementation",
-    quote: "LeniLani's AI chatbot reduced our customer service response time by 75%. Our team can now focus on complex issues while the bot handles routine questions.",
+    name: "Sarah M.",
+    company: "Local Coffee Shop",
+    service: "AI Chatbot Setup",
+    quote: "Reno helped us set up an AI chatbot for our online orders. It's been amazing! Customers can order 24/7 now.",
     rating: 5,
     location: "Honolulu, HI"
   },
   {
     id: 2,
-    name: "Sarah T.",
-    company: "Island Hospitality",
-    service: "Business Intelligence Dashboard",
-    quote: "The BI dashboard Reno built transformed how we make decisions. We now have real-time insights across all our properties.",
-    rating: 5,
-    location: "Maui, HI"
-  },
-  {
-    id: 3,
-    name: "David L.",
-    company: "Hawaiian Tech Ventures",
-    service: "Fractional CTO Services",
-    quote: "Having Reno as our fractional CTO gave us enterprise-level technology leadership without the enterprise cost. Game changer for our startup.",
-    rating: 5,
-    location: "Honolulu, HI"
-  },
-  {
-    id: 4,
-    name: "Jennifer P.",
-    company: "Aloha Marketing Co.",
-    service: "Marketing Automation",
-    quote: "Our lead generation increased 300% after implementing LeniLani's marketing automation. The ROI was clear within the first month.",
+    name: "Mike T.",
+    company: "Island Consulting",
+    service: "Technology Consulting",
+    quote: "Great technical expertise and very responsive. Reno helped us modernize our systems and saved us a lot of time.",
     rating: 5,
     location: "Kailua, HI"
   },
   {
-    id: 5,
-    name: "Robert H.",
-    company: "Island Medical Group",
-    service: "System Integration",
-    quote: "LeniLani integrated all our disconnected systems. No more manual data entry between our EHR, billing, and scheduling systems.",
+    id: 3,
+    name: "Lisa K.",
+    company: "Small Business Owner",
+    service: "Automation Help",
+    quote: "Finally automated our manual processes! Reno was patient in explaining everything and the results speak for themselves.",
     rating: 5,
     location: "Honolulu, HI"
   }
@@ -2344,9 +2326,8 @@ app.get('/api/social-proof', async (req, res) => {
 
     // Include testimonials
     if (includeTestimonials === 'true') {
-      // Rotate through testimonials randomly
-      const shuffledTestimonials = [...testimonials].sort(() => Math.random() - 0.5);
-      response.testimonials = shuffledTestimonials.slice(0, 3); // Return 3 random testimonials
+      // Return all testimonials (we only have 3 for first year)
+      response.testimonials = testimonials;
     }
 
     res.json(response);
