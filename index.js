@@ -3280,6 +3280,27 @@ app.get('/admin', (req, res) => {
   res.sendFile(__dirname + '/public/admin-dashboard.html');
 });
 
+// 🔧 Diagnostic endpoint - check HubSpot and environment configuration
+app.get('/api/diagnostic', (req, res) => {
+  res.json({
+    timestamp: new Date().toISOString(),
+    hubspot: {
+      clientInitialized: !!hubspotClient,
+      apiKeyConfigured: !!HUBSPOT_API_KEY,
+      apiKeyLength: HUBSPOT_API_KEY ? HUBSPOT_API_KEY.length : 0
+    },
+    supabase: {
+      configured: !!SUPABASE_URL && !!SUPABASE_ANON_KEY,
+      url: SUPABASE_URL ? SUPABASE_URL.substring(0, 30) + '...' : 'not set'
+    },
+    anthropic: {
+      configured: !!ANTHROPIC_API_KEY,
+      keyLength: ANTHROPIC_API_KEY ? ANTHROPIC_API_KEY.length : 0
+    },
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Serve static files AFTER routes to prevent conflicts
 app.use(express.static('public'));
 
