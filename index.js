@@ -2223,6 +2223,51 @@ function addSocialProofActivity(type, data) {
   console.log(`🎯 Social Proof: ${type} activity recorded`);
 }
 
+// 👋 PHASE 4A - Returning Visitor Recognition: Store visitor history
+const visitorHistory = new Map();
+
+// Function to save visitor interaction
+function saveVisitorInteraction(visitorId, data) {
+  const { email, name, conversationSummary, recommendedService, leadScore, roiData } = data;
+
+  if (!visitorHistory.has(visitorId)) {
+    visitorHistory.set(visitorId, {
+      firstVisit: new Date().toISOString(),
+      visitCount: 0,
+      interactions: [],
+      email: email || null,
+      name: name || null
+    });
+  }
+
+  const visitor = visitorHistory.get(visitorId);
+  visitor.visitCount++;
+  visitor.lastVisit = new Date().toISOString();
+
+  if (email && !visitor.email) visitor.email = email;
+  if (name && !visitor.name) visitor.name = name;
+
+  visitor.interactions.push({
+    timestamp: new Date().toISOString(),
+    conversationSummary: conversationSummary || '',
+    recommendedService: recommendedService || null,
+    leadScore: leadScore || 0,
+    roiData: roiData || null
+  });
+
+  // Keep only last 10 interactions
+  if (visitor.interactions.length > 10) {
+    visitor.interactions = visitor.interactions.slice(-10);
+  }
+
+  console.log(`👋 Visitor ${visitorId} interaction saved. Visit count: ${visitor.visitCount}`);
+}
+
+// Function to get visitor history
+function getVisitorHistory(visitorId) {
+  return visitorHistory.get(visitorId) || null;
+}
+
 // Function to get formatted recent activity for display
 function getFormattedRecentActivity(limit = 10) {
   const activities = socialProofData.recentActivity.slice(0, limit);
@@ -2308,6 +2353,89 @@ app.get('/api/social-proof', async (req, res) => {
   } catch (error) {
     console.error('Error fetching social proof data:', error);
     res.status(500).json({ error: 'Unable to fetch social proof data' });
+  }
+});
+
+// 👋 PHASE 4A - Returning Visitor Recognition: Get visitor history
+app.get('/api/visitor-history/:visitorId', (req, res) => {
+  try {
+    const { visitorId } = req.params;
+
+    if (!visitorId) {
+      return res.status(400).json({ error: 'Visitor ID is required' });
+    }
+
+    const history = getVisitorHistory(visitorId);
+
+    if (!history) {
+      return res.json({
+        isReturning: false,
+        message: 'Welcome! This is your first visit.'
+      });
+    }
+
+    // Calculate time since last visit
+    const lastVisit = new Date(history.lastVisit);
+    const timeSinceLastVisit = Date.now() - lastVisit.getTime();
+    const daysSinceLastVisit = Math.floor(timeSinceLastVisit / (1000 * 60 * 60 * 24));
+
+    // Get most recent interaction
+    const recentInteraction = history.interactions.length > 0
+      ? history.interactions[history.interactions.length - 1]
+      : null;
+
+    res.json({
+      isReturning: true,
+      visitCount: history.visitCount,
+      firstVisit: history.firstVisit,
+      lastVisit: history.lastVisit,
+      daysSinceLastVisit,
+      name: history.name,
+      email: history.email,
+      recentInteraction: recentInteraction ? {
+        timestamp: recentInteraction.timestamp,
+        recommendedService: recentInteraction.recommendedService,
+        leadScore: recentInteraction.leadScore,
+        hadROICalculation: !!recentInteraction.roiData
+      } : null,
+      personalizedGreeting: history.name
+        ? `Welcome back, ${history.name}! Great to see you again.`
+        : `Welcome back! This is visit #${history.visitCount}.`,
+      context: recentInteraction?.recommendedService
+        ? `Last time we discussed ${recentInteraction.recommendedService}. Would you like to continue that conversation or explore something new?`
+        : 'How can I help you today?'
+    });
+  } catch (error) {
+    console.error('Error fetching visitor history:', error);
+    res.status(500).json({ error: 'Unable to fetch visitor history' });
+  }
+});
+
+// 👋 PHASE 4A - Returning Visitor Recognition: Save visitor interaction
+app.post('/api/visitor-interaction', (req, res) => {
+  try {
+    const { visitorId, email, name, conversationSummary, recommendedService, leadScore, roiData } = req.body;
+
+    if (!visitorId) {
+      return res.status(400).json({ error: 'Visitor ID is required' });
+    }
+
+    saveVisitorInteraction(visitorId, {
+      email,
+      name,
+      conversationSummary,
+      recommendedService,
+      leadScore,
+      roiData
+    });
+
+    res.json({
+      success: true,
+      message: 'Visitor interaction saved successfully'
+    });
+  } catch (error) {
+    console.error('Error saving visitor interaction:', error);
+    res.status(500).json({ error: 'Unable to save visitor interaction' });
   }
 });
 
