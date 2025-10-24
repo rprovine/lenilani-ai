@@ -1596,9 +1596,6 @@ function generateQuickReplies(context, botResponse) {
 
   // 🤖 PHASE 3 - Language Mode: Cycle through English → Pidgin → ʻŌlelo Hawaiʻi
   const languageMode = context.languageMode || 'english';
-  const languageToggle = languageMode === 'english' ? "Talk pidgin" :
-                         languageMode === 'pidgin' ? "ʻŌlelo Hawaiʻi" :
-                         "English";
 
   // Check for escalation
   if (context.escalationRequested) {
@@ -1606,7 +1603,6 @@ function generateQuickReplies(context, botResponse) {
       "Email: reno@lenilani.com",
       "Call: (808) 766-1164",
       "Continue with AI assistant",
-      languageToggle
     ];
   }
 
@@ -1638,35 +1634,30 @@ function generateQuickReplies(context, botResponse) {
         "We need faster response times",
         "Too many repetitive questions",
         "Want to capture more leads",
-        languageToggle
       ];
     } else if (recommendedService === 'Business Intelligence' || allMessages.includes('data') || allMessages.includes('spreadsheet') || allMessages.includes('report')) {
       return [
         "We're drowning in spreadsheets",
         "Need real-time insights",
         "Want automated reporting",
-        languageToggle
       ];
     } else if (recommendedService === 'System Integration' || allMessages.includes('multiple') || allMessages.includes('platform') || allMessages.includes('tools')) {
       return [
         "Too many disconnected tools",
         "Manual data entry is killing us",
         "Need systems to talk to each other",
-        languageToggle
       ];
     } else if (recommendedService === 'Fractional CTO' || allMessages.includes('strategy') || allMessages.includes('technology') || allMessages.includes('roadmap')) {
       return [
         "Need technology strategy",
         "Don't know what to build vs buy",
         "Want a tech roadmap",
-        languageToggle
       ];
     } else if (recommendedService === 'Marketing Automation' || allMessages.includes('marketing') || allMessages.includes('hubspot') || allMessages.includes('leads')) {
       return [
         "Lead generation is slow",
         "Manual marketing tasks",
         "Need better lead nurturing",
-        languageToggle
       ];
     } else {
       // Generic business challenges
@@ -1674,7 +1665,6 @@ function generateQuickReplies(context, botResponse) {
         "We're wasting too much time",
         "Processes are inefficient",
         "Need to scale operations",
-        languageToggle
       ];
     }
   }
@@ -1685,7 +1675,6 @@ function generateQuickReplies(context, botResponse) {
       "Tell me more about solutions",
       "How does this work?",
       "What's the cost?",
-      languageToggle
     ];
   }
 
@@ -1695,7 +1684,6 @@ function generateQuickReplies(context, botResponse) {
       "I'd like to learn more",
       "Send me some information",
       "Let's schedule a call",
-      languageToggle
     ];
   }
 
@@ -1704,7 +1692,6 @@ function generateQuickReplies(context, botResponse) {
     "Tell me more",
     "How can you help?",
     "What's involved?",
-    languageToggle
   ];
 }
 
@@ -2660,7 +2647,7 @@ setInterval(() => {
 
 app.post('/chat', chatLimiter, async (req, res) => {
   try {
-    const { message, sessionId } = req.body;
+    const { message, sessionId, languageMode } = req.body;
 
     // Security: Input validation
     if (!message) {
@@ -2725,6 +2712,12 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
     const context = conversationContexts.get(contextId);
     context.lastActivity = Date.now(); // Update activity timestamp
+
+    // Update language mode if provided in request
+    if (languageMode && ['english', 'pidgin', 'olelo'].includes(languageMode)) {
+      context.languageMode = languageMode;
+    }
+
     context.messages.push({ role: 'user', content: message });
 
     // 🤖 PHASE 3 - Analytics: Track total messages
@@ -2816,54 +2809,16 @@ app.post('/chat', chatLimiter, async (req, res) => {
       }
     }
 
-    // 🤖 PHASE 3 - Language Mode: Check for language toggle
-    const languageRequest = detectLanguageRequest(message);
-    if (languageRequest) {
-      if (languageRequest === 'english') {
-        context.languageMode = 'english';
-        console.log('🇺🇸 Switched to English mode');
-      } else if (languageRequest === 'pidgin') {
-        context.languageMode = 'pidgin';
-        console.log('🌺 Switched to Hawaiian Pidgin mode');
-        // Track pidgin mode activation
-        if (!context.pidginActivated) {
-          analyticsData.pidginModeActivations++;
-          context.pidginActivated = true;
-          saveAnalytics();
-        }
-      } else if (languageRequest === 'olelo') {
-        context.languageMode = 'olelo';
-        console.log('🌺 Switched to ʻŌlelo Hawaiʻi mode');
-        // Track Hawaiian language activation
-        if (!context.oleloActivated) {
-          analyticsData.oleloModeActivations = (analyticsData.oleloModeActivations || 0) + 1;
-          context.oleloActivated = true;
-          saveAnalytics();
-        }
-      }
-    }
-
-    // Also check for language toggle button clicks ("Talk pidgin", "ʻŌlelo Hawaiʻi", "English")
-    const lowerMessage = message.toLowerCase();
-    if (lowerMessage === 'talk pidgin' || lowerMessage === 'pidgin') {
-      context.languageMode = 'pidgin';
-      console.log('🌺 Switched to Pidgin mode via button');
-      if (!context.pidginActivated) {
-        analyticsData.pidginModeActivations++;
-        context.pidginActivated = true;
-        saveAnalytics();
-      }
-    } else if (lowerMessage === 'ʻōlelo hawaiʻi' || lowerMessage === 'olelo hawaii' || message === 'ʻŌlelo Hawaiʻi') {
-      context.languageMode = 'olelo';
-      console.log('🌺 Switched to ʻŌlelo Hawaiʻi mode via button');
-      if (!context.oleloActivated) {
-        analyticsData.oleloModeActivations = (analyticsData.oleloModeActivations || 0) + 1;
-        context.oleloActivated = true;
-        saveAnalytics();
-      }
-    } else if (lowerMessage === 'english') {
-      context.languageMode = 'english';
-      console.log('🇺🇸 Switched to English mode via button');
+    // 🤖 PHASE 3 - Language Mode: Track analytics when language changes
+    // (Language is now selected via dropdown in the UI, not via message detection)
+    if (context.languageMode === 'pidgin' && !context.pidginActivated) {
+      analyticsData.pidginModeActivations++;
+      context.pidginActivated = true;
+      saveAnalytics();
+    } else if (context.languageMode === 'olelo' && !context.oleloActivated) {
+      analyticsData.oleloModeActivations = (analyticsData.oleloModeActivations || 0) + 1;
+      context.oleloActivated = true;
+      saveAnalytics();
     }
 
     // Check for escalation request

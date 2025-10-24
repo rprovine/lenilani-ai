@@ -47,10 +47,52 @@
             font-size: 24px;
             margin-bottom: 5px;
         }
-        
+
         .header p {
             font-size: 14px;
             opacity: 0.9;
+        }
+
+        .language-selector-container {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .language-selector-label {
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .language-selector {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .language-selector:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .language-selector:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        .language-selector option {
+            background: #0ea5e9;
+            color: white;
         }
         
         .chat-container {
@@ -429,6 +471,14 @@
         <div class="header">
             <h1>LeniLani AI</h1>
             <p>LeniLani Consulting - Premier AI & Technology Solutions</p>
+            <div class="language-selector-container">
+                <label class="language-selector-label" for="languageSelect">Language:</label>
+                <select id="languageSelect" class="language-selector" onchange="handleLanguageChange()">
+                    <option value="english">English</option>
+                    <option value="pidgin">Pidgin</option>
+                    <option value="olelo">ʻŌlelo Hawaiʻi</option>
+                </select>
+            </div>
         </div>
 
         <!-- Phase 4 - Returning Visitor Recognition -->
@@ -517,6 +567,36 @@
         const messageInput = document.getElementById('messageInput');
         const typingIndicator = document.getElementById('typingIndicator');
         const quickstartContainer = document.getElementById('quickstartContainer');
+        const languageSelect = document.getElementById('languageSelect');
+
+        // Track current language mode
+        let currentLanguageMode = 'english';
+
+        // Handle language change
+        function handleLanguageChange() {
+            const previousLanguage = currentLanguageMode;
+            currentLanguageMode = languageSelect.value;
+
+            console.log(`🌐 Language changed from ${previousLanguage} to ${currentLanguageMode}`);
+
+            // Add a system message to indicate language change
+            const languageNames = {
+                'english': 'English',
+                'pidgin': 'Hawaiian Pidgin',
+                'olelo': 'ʻŌlelo Hawaiʻi'
+            };
+
+            const systemMessage = document.createElement('div');
+            systemMessage.style.textAlign = 'center';
+            systemMessage.style.padding = '10px';
+            systemMessage.style.color = '#6c757d';
+            systemMessage.style.fontSize = '12px';
+            systemMessage.style.fontStyle = 'italic';
+            systemMessage.textContent = `Language changed to ${languageNames[currentLanguageMode]}`;
+            chatContainer.appendChild(systemMessage);
+
+            smartScroll(true);
+        }
 
         // Smart scroll - only auto-scroll if user is already near the bottom
         // force = true for user actions (clicks, sending messages) - always scrolls
@@ -556,7 +636,10 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ message: prompt }),
+                    body: JSON.stringify({
+                        message: prompt,
+                        languageMode: currentLanguageMode
+                    }),
                 });
 
                 const data = await response.json();
@@ -728,7 +811,10 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ message }),
+                    body: JSON.stringify({
+                        message,
+                        languageMode: currentLanguageMode
+                    }),
                 });
 
                 const data = await response.json();
