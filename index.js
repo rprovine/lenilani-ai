@@ -2469,9 +2469,9 @@ app.get('/chat', (req, res) => {
 const conversationContexts = new Map();
 
 // 🤖 PHASE 3 - Conversation Analytics: Track chatbot performance metrics
-// 💾 Analytics persistence with Supabase
-const supabaseUrl = process.env.SUPABASE_URL || 'http://127.0.0.1:54321';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+// 💾 Analytics persistence with Supabase (defaults to production)
+const supabaseUrl = process.env.SUPABASE_URL || 'https://jthmkmsetfyieqdwadbj.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0aG1rbXNldGZ5aWVxZHdhZGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyOTMxOTAsImV4cCI6MjA3Njg2OTE5MH0._D6yR7k6EfIZklpNdBf_3hwGjUGw6lgd0qXaitFnUkk';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // In-memory cache of analytics data
