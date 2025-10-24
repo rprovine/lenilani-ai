@@ -94,7 +94,7 @@ langchain-chatbot-lenilani/
 
 ## 💰 Pricing Model
 
-- **One-time Setup**: $1,000 for complete implementation
+- **One-time Setup**: varies for complete implementation
 - **Monthly API Costs**: Based on usage with 30% service markup
   - Default estimate: ~$65/month for 10,000 messages
   - Transparent calculator included on landing page
