@@ -44,15 +44,14 @@ const HUBSPOT_MEETING_LINK = process.env.HUBSPOT_MEETING_LINK || 'https://meetin
 
 // Lazy initialization for HubSpot client (better for serverless)
 let hubspotClient = null;
-let hubspotInitAttempted = false;
 let hubspotInitError = null;
 
 function getHubSpotClient() {
-  if (hubspotInitAttempted) {
+  // Always return existing client if already initialized in this invocation
+  if (hubspotClient) {
     return hubspotClient;
   }
 
-  hubspotInitAttempted = true;
   const HUBSPOT_API_KEY = process.env.HUBSPOT_API_KEY;
 
   console.log('🔍 Initializing HubSpot client (lazy)...');
