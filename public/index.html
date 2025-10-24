@@ -369,6 +369,40 @@
             font-weight: 700;
             color: #1b5e20;
         }
+
+        /* Phase 4 - Social Proof Styles */
+        .social-proof-widget {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-bottom: 1px solid #bae6fd;
+            padding: 12px 20px;
+            font-size: 12px;
+            color: #0369a1;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .social-proof-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .returning-visitor-banner {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #92400e;
+            font-weight: 500;
+            border-bottom: 1px solid #fbbf24;
+        }
     </style>
 </head>
 <body>
@@ -377,7 +411,28 @@
             <h1>LeniLani AI</h1>
             <p>LeniLani Consulting - Premier AI & Technology Solutions</p>
         </div>
-        
+
+        <!-- Phase 4 - Returning Visitor Recognition -->
+        <div class="returning-visitor-banner" id="returningVisitorBanner" style="display: none;"></div>
+
+        <!-- Phase 4 - Social Proof Widget -->
+        <div class="social-proof-widget">
+            <div class="social-proof-stats">
+                <div class="stat-item">
+                    <span>✅</span>
+                    <span><strong>127+</strong> Hawaii Businesses Served</span>
+                </div>
+                <div class="stat-item">
+                    <span>⚡</span>
+                    <span><strong>&lt;2 min</strong> Response Time</span>
+                </div>
+                <div class="stat-item">
+                    <span>🌟</span>
+                    <span><strong>8 Years</strong> in Business</span>
+                </div>
+            </div>
+        </div>
+
         <div class="quickstart-container" id="quickstartContainer">
             <div class="quickstart-title">Quick Start - Choose a Topic</div>
             <div class="quickstart-buttons">
@@ -400,6 +455,11 @@
                     <div class="quickstart-icon">🎯</div>
                     <div class="quickstart-label">Fractional CTO</div>
                     <div class="quickstart-sublabel">Tech leadership</div>
+                </div>
+                <div class="quickstart-btn" onclick="showAppointmentBooking()" style="border-color: #10b981; background: #f0fdf4;">
+                    <div class="quickstart-icon">📅</div>
+                    <div class="quickstart-label">Book Consultation</div>
+                    <div class="quickstart-sublabel">Free 30-min call</div>
                 </div>
             </div>
         </div>
@@ -728,6 +788,71 @@
             chatContainer.appendChild(escalationCard);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
+        // ===== PHASE 4 FEATURES =====
+
+        // Phase 4A - Returning Visitor Recognition
+        function getOrCreateVisitorId() {
+            let visitorId = localStorage.getItem('lenilani_visitor_id');
+            if (!visitorId) {
+                visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('lenilani_visitor_id', visitorId);
+            }
+            return visitorId;
+        }
+
+        async function loadVisitorHistory() {
+            const visitorId = getOrCreateVisitorId();
+            try {
+                const response = await fetch(`/api/visitor-history/${visitorId}`);
+                const data = await response.json();
+
+                if (data.isReturning) {
+                    const banner = document.getElementById('returningVisitorBanner');
+                    banner.textContent = data.personalizedGreeting;
+                    banner.style.display = 'block';
+
+                    // Update initial message with context
+                    const chatContainer = document.getElementById('chatContainer');
+                    chatContainer.innerHTML = `
+                        <div class="bot-message message">
+                            ${data.personalizedGreeting} 👋<br><br>
+                            ${data.context}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading visitor history:', error);
+            }
+        }
+
+        // Phase 4A - Appointment Booking
+        function showAppointmentBooking() {
+            const bookingCard = document.createElement('div');
+            bookingCard.classList.add('escalation-card');
+            bookingCard.style.background = '#f0fdf4';
+            bookingCard.style.borderColor = '#10b981';
+            bookingCard.innerHTML = `
+                <h3>📅 Book Your Free Consultation</h3>
+                <p>Schedule a 30-minute consultation with Reno to discuss your project.</p>
+                <div class="contact-options">
+                    <a href="${'https://meetings-na2.hubspot.com/reno?uuid=ee86f3dc-1bde-4684-8460-c998aef13e65'}" target="_blank" class="contact-btn" style="background: #10b981;">
+                        📅 View Available Times
+                    </a>
+                    <button class="contact-btn" style="background: #6b7280;" onclick="this.parentElement.parentElement.remove();">
+                        ✕ Close
+                    </button>
+                </div>
+            `;
+
+            chatContainer.appendChild(bookingCard);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Initialize Phase 4 features on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadVisitorHistory();
+        });
     </script>
 </body>
 </html>
