@@ -104,7 +104,7 @@ let memory = null;
 
 function initializeChain() {
   if (chain) return chain;
-  
+
   const model = new ChatAnthropic({
     modelName: 'claude-sonnet-4-5-20250929',
     temperature: 0.7,
@@ -116,6 +116,12 @@ function initializeChain() {
     returnMessages: true,
     memoryKey: 'history',
   });
+
+  // Get live availability status
+  const availability = checkBusinessHours();
+  const availabilityMessage = availability.isAvailable
+    ? `✅ CURRENTLY AVAILABLE - It's ${availability.hawaiiTime} in Hawaii. Reno is likely available during business hours (9 AM - 5 PM HST, Monday-Friday).`
+    : `⏰ OUTSIDE BUSINESS HOURS - It's ${availability.hawaiiTime} in Hawaii. Business hours are Monday-Friday, 9 AM - 5 PM HST. Reno will respond during business hours.`;
 
   const COMPLETE_LENILANI_CLAUDE_PROMPT = `You are LeniLani AI, a professional consulting assistant for LeniLani Consulting in Honolulu, Hawaii.
 
@@ -149,9 +155,17 @@ You are a knowledgeable technology consultant with deep Hawaiian roots and aloha
 If someone asks to speak with a human, is frustrated, or needs more help:
 - Acknowledge their request warmly and professionally
 - Apologize if they're frustrated: "I completely understand, mahalo for your patience."
-- Provide contact options: "You can reach Reno directly at reno@lenilani.com or call (808) 766-1164"
+- Provide contact options with availability context (see LIVE AVAILABILITY section below)
 - Offer to continue helping: "I'm also happy to continue assisting you if you'd like - what specific information would be most helpful?"
 - NEVER be defensive or pushy when someone wants human contact
+
+## 🕐 LIVE AVAILABILITY (Current Status)
+${availabilityMessage}
+
+**When providing contact information:**
+- If available now: "Reno is available now - you can reach him at reno@lenilani.com or (808) 766-1164"
+- If outside business hours: "Our office hours are Monday-Friday, 9 AM - 5 PM HST. You can reach Reno at reno@lenilani.com or (808) 766-1164, and he'll respond during business hours."
+- Always include the booking link option: "Or book a specific time at your convenience: ${HUBSPOT_MEETING_LINK}"
 
 ## COMPREHENSIVE KNOWLEDGE BASE
 You have access to the complete, verified LeniLani Consulting knowledge base which includes information from:
@@ -238,6 +252,54 @@ When clients mention business challenges, automatically:
 - We provide both technical implementation AND strategic guidance
 - Hawaii location offers unique advantages (timezone focus, lower costs)
 - Proven track record with measurable ROI across all service areas
+
+## 💰 ROI CALCULATOR & VALUE DEMONSTRATION
+When users mention time spent on tasks (e.g., "15 hours per week on manual data entry"):
+- Acknowledge their pain: "That's a significant time investment"
+- Calculate the ROI naturally in conversation:
+  "At an average of $50/hour, that's about $39,000 per year in labor costs. Our solutions typically save 10-20 hours weekly on tasks like this, which could save you over $20,000 annually - far more than our $1,500/month service. Does that kind of ROI make sense for your business?"
+
+When users mention costs (e.g., "This is costing us $5,000 a month"):
+- Show empathy: "I understand - that adds up quickly"
+- Frame your service as an investment that pays for itself:
+  "Our $1,500/month solution addresses exactly this type of cost drain. Most clients see their investment pay back within 2-3 months. Would you like to explore how that might work for your specific situation?"
+
+**Success Stories** (use generically since we don't have specific case studies):
+- Tourism industry: "We've helped Hawaii tourism businesses handle 80% of inquiries automatically, reducing response time from hours to seconds."
+- Data/BI: "Clients typically go from spending 12+ hours weekly on spreadsheets to 30 minutes with automated dashboards."
+- System Integration: "We've connected disparate systems for businesses, saving them 10-20 hours per week on manual data entry."
+
+## 🎯 SERVICE RECOMMENDATION
+When pain points emerge, match them to specific services naturally:
+- Customer support issues → "Our AI Chatbot service ($1,000 setup + ~$65/month) might be perfect for that"
+- Data scattered across tools → "System Integration is what you need - connects everything seamlessly"
+- Drowning in spreadsheets → "Business Intelligence dashboards would give you real-time insights"
+- Need tech direction → "Fractional CTO service provides strategic guidance without full-time cost"
+- Lead generation struggles → "Marketing Automation with HubSpot could 2-3x your lead capture"
+
+Always include pricing when recommending a service to set expectations early.
+
+## 💵 PRICING TRANSPARENCY
+When budget or pricing questions arise, provide clear, transparent pricing immediately:
+
+**Standard Services:**
+- "Our standard technology solutions start at $1,500/month with flexible month-to-month contracts - no long-term commitments"
+- "Enterprise solutions at small business pricing is our specialty"
+
+**AI Chatbot Specific:**
+- "AI Chatbot pricing: $1,000 one-time setup, then approximately $65/month based on usage"
+- "For 10,000 messages monthly, expect around $65/month in costs"
+- "Includes custom personality training, lead qualification, and 30 days of support"
+
+**Pricing Philosophy:**
+- "We believe in complete transparency - no hidden fees, ever"
+- "Month-to-month means you can cancel anytime if you're not seeing value"
+- "Most clients see ROI within 2-3 months based on time and cost savings"
+
+**When they say budget is a concern:**
+- Compare their current costs (manual labor, inefficiency) to your pricing
+- Show the investment pays for itself quickly
+- Emphasize month-to-month flexibility reduces risk
 
 ## TONE & PERSONALITY
 - **Professional Consultant with Aloha Spirit**: You're a knowledgeable advisor, not a casual friend
@@ -478,17 +540,32 @@ ${formattedConversation}
   }
 }
 
-async function createEscalationNote(contactId, messages) {
+async function createEscalationNote(contactId, context) {
   if (!hubspotClient) return;
 
   try {
-    const conversationSummary = messages
+    const conversationSummary = context.messages
       .map((msg, index) => {
         const speaker = msg.role === 'user' ? '👤 VISITOR' : '🤖 LENILANI AI';
-        const separator = index < messages.length - 1 ? '\n' : '';
+        const separator = index < context.messages.length - 1 ? '\n' : '';
         return `${speaker}:\n${msg.content}${separator}`;
       })
       .join('\n\n');
+
+    // Build lead intelligence section
+    const leadScore = context.leadScore || 0;
+    const leadPriority = getLeadPriority(leadScore);
+    let leadIntelligence = `\n📊 LEAD INTELLIGENCE
+   Lead Score: ${leadScore}/100
+   Priority: ${leadPriority}`;
+
+    if (context.roiData && context.roiData.potentialSavings > 0) {
+      leadIntelligence += `\n   ROI Potential: $${context.roiData.potentialSavings.toLocaleString()}/year (${context.roiData.roi}% ROI)`;
+    }
+
+    if (context.recommendedService) {
+      leadIntelligence += `\n   Recommended Service: ${context.recommendedService.service}`;
+    }
 
     const noteProperties = {
       hs_timestamp: Date.now(),
@@ -497,6 +574,7 @@ async function createEscalationNote(contactId, messages) {
 
 ⚠️  The visitor has requested to speak with a human representative.
     Please follow up ASAP.
+${leadIntelligence}
 
 CONVERSATION HISTORY:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -599,6 +677,175 @@ function detectEscalation(message) {
 
   const lowerMessage = message.toLowerCase();
   return escalationPhrases.some(phrase => lowerMessage.includes(phrase));
+}
+
+// ROI Calculator: Extract time/cost information from conversation
+function extractROIData(message) {
+  const lowerMessage = message.toLowerCase();
+
+  // Pattern: "15 hours per week" or "15 hours/week" or "15 hrs weekly"
+  const hoursPerWeekMatch = lowerMessage.match(/(\d+)\s*(?:hours?|hrs?)?\s*(?:per|\/|a|each)?\s*week/i);
+
+  // Pattern: "$50/hour" or "$50 per hour" or "50 dollars per hour"
+  const hourlyRateMatch = lowerMessage.match(/\$?(\d+)\s*(?:dollars?)?\s*(?:per|\/|an?)\s*hour/i);
+
+  // Pattern: "costs us $5000 per month" or "losing $5k monthly"
+  const monthlyCostMatch = lowerMessage.match(/(?:cost|losing|spend|waste)(?:ing|s)?\s*(?:us)?\s*\$?(\d+)k?\s*(?:per|\/|a|each)?\s*month/i);
+
+  return {
+    hoursPerWeek: hoursPerWeekMatch ? parseInt(hoursPerWeekMatch[1]) : null,
+    hourlyRate: hourlyRateMatch ? parseInt(hourlyRateMatch[1]) : null,
+    monthlyCost: monthlyCostMatch ? parseInt(monthlyCostMatch[1]) * (monthlyCostMatch[1].includes('k') ? 1000 : 1) : null,
+    hasTimeData: !!hoursPerWeekMatch,
+    hasCostData: !!(hourlyRateMatch || monthlyCostMatch)
+  };
+}
+
+// Calculate ROI and format response
+function calculateROI(hoursPerWeek, hourlyRate = 50) {
+  const annualLaborCost = hoursPerWeek * hourlyRate * 52;
+  const leniLaniAnnualCost = 1500 * 12; // $18,000/year
+  const potentialSavings = annualLaborCost - leniLaniAnnualCost;
+  const efficiencyGain = hoursPerWeek * 0.35; // 35% average efficiency increase
+  const timeSaved = Math.min(hoursPerWeek * 0.7, 20); // Up to 20 hours saved
+
+  return {
+    annualLaborCost,
+    leniLaniAnnualCost,
+    potentialSavings,
+    efficiencyGain,
+    timeSaved,
+    roi: potentialSavings > 0 ? ((potentialSavings / leniLaniAnnualCost) * 100).toFixed(0) : 0,
+    paybackMonths: potentialSavings > 0 ? Math.ceil(leniLaniAnnualCost / (potentialSavings / 12)) : null
+  };
+}
+
+// Service Recommender: Match pain points to services
+function recommendService(message) {
+  const lowerMessage = message.toLowerCase();
+
+  const servicePatterns = {
+    'AI Chatbot': [
+      'customer questions', 'customer support', 'repetitive questions',
+      '24/7', 'response time', 'support team', 'customer service',
+      'inquiries', 'after hours', 'chatbot', 'automated responses'
+    ],
+    'System Integration': [
+      'multiple tools', 'different platforms', 'manual data entry',
+      'copy paste', 'systems don\'t talk', 'integration', 'api',
+      'juggling software', 'switching between', 'data sync'
+    ],
+    'Business Intelligence': [
+      'spreadsheets', 'data analysis', 'reporting', 'dashboards',
+      'insights', 'metrics', 'analytics', 'track performance',
+      'kpis', 'business data', 'reports'
+    ],
+    'Fractional CTO': [
+      'technology strategy', 'tech leadership', 'technology direction',
+      'build vs buy', 'vendor selection', 'tech stack', 'architecture',
+      'technical guidance', 'cto', 'technology roadmap'
+    ],
+    'Marketing Automation': [
+      'lead generation', 'marketing', 'hubspot', 'crm', 'email campaigns',
+      'lead scoring', 'marketing automation', 'nurture leads', 'sales funnel'
+    ]
+  };
+
+  let bestMatch = null;
+  let highestScore = 0;
+
+  for (const [service, keywords] of Object.entries(servicePatterns)) {
+    const score = keywords.filter(keyword => lowerMessage.includes(keyword)).length;
+    if (score > highestScore) {
+      highestScore = score;
+      bestMatch = service;
+    }
+  }
+
+  return bestMatch && highestScore > 0 ? { service: bestMatch, confidence: highestScore } : null;
+}
+
+// Live Availability: Check if it's business hours in Hawaii (HST)
+function checkBusinessHours() {
+  const now = new Date();
+
+  // Convert to Hawaii time (HST is UTC-10)
+  const hawaiiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Pacific/Honolulu' }));
+  const hour = hawaiiTime.getHours();
+  const day = hawaiiTime.getDay(); // 0 = Sunday, 6 = Saturday
+
+  // Business hours: Monday-Friday, 9 AM - 5 PM HST
+  const isWeekday = day >= 1 && day <= 5;
+  const isBusinessHours = hour >= 9 && hour < 17;
+
+  return {
+    isAvailable: isWeekday && isBusinessHours,
+    currentHour: hour,
+    currentDay: day,
+    hawaiiTime: hawaiiTime.toLocaleString('en-US', {
+      timeZone: 'Pacific/Honolulu',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+  };
+}
+
+// Lead Scoring: Calculate lead quality score (0-100)
+function calculateLeadScore(context, message) {
+  let score = 0;
+  const lowerMessage = message.toLowerCase();
+
+  // Budget indicators (0-25 points)
+  if (lowerMessage.match(/budget|afford|spend|invest/)) {
+    if (lowerMessage.match(/\$?\d+k?.*month/)) {
+      const amount = parseInt(lowerMessage.match(/\$?(\d+)k?/)[1]);
+      if (amount >= 1500) score += 25;
+      else if (amount >= 1000) score += 15;
+      else score += 5;
+    } else {
+      score += 10; // Mentioned budget but no specific amount
+    }
+  }
+
+  // Company size (0-20 points)
+  const sizeMatch = lowerMessage.match(/(\d+)\s*(?:employees?|people|team members?)/i);
+  if (sizeMatch) {
+    const size = parseInt(sizeMatch[1]);
+    if (size >= 10 && size <= 50) score += 20; // Ideal size
+    else if (size >= 5 && size < 10) score += 15;
+    else if (size > 50) score += 10;
+    else score += 5;
+  }
+
+  // Timeline/Urgency (0-20 points)
+  if (lowerMessage.match(/urgent|asap|immediately|right away|this week/)) score += 20;
+  else if (lowerMessage.match(/soon|next month|coming weeks/)) score += 15;
+  else if (lowerMessage.match(/this year|next quarter|eventually/)) score += 10;
+  else if (lowerMessage.match(/just looking|exploring|researching/)) score += 5;
+
+  // Pain severity (0-20 points)
+  const painIndicators = ['losing money', 'costing us', 'critical', 'major problem', 'desperate', 'struggling'];
+  const painScore = painIndicators.filter(indicator => lowerMessage.includes(indicator)).length;
+  score += Math.min(painScore * 5, 20);
+
+  // Decision maker (0-15 points)
+  if (lowerMessage.match(/i'm the owner|i own|ceo|founder|i run|my business|my company/)) score += 15;
+  else if (lowerMessage.match(/director|manager|vp|vice president/)) score += 10;
+  else if (lowerMessage.match(/team member|employee|staff/)) score += 3;
+
+  // Has contact info (0-10 bonus)
+  if (context.contactInfo && context.contactInfo.email) score += 10;
+
+  return Math.min(score, 100); // Cap at 100
+}
+
+// Get lead priority label
+function getLeadPriority(score) {
+  if (score >= 80) return '🔥 HOT LEAD';
+  if (score >= 60) return '⭐ WARM LEAD';
+  if (score >= 40) return '💼 QUALIFIED LEAD';
+  return '📋 COLD LEAD';
 }
 
 // Generate context-aware quick reply suggestions
@@ -887,12 +1134,44 @@ app.post('/chat', chatLimiter, async (req, res) => {
         messages: [],
         contactInfo: {},
         escalationRequested: false,
-        lastActivity: Date.now()
+        lastActivity: Date.now(),
+        roiData: null,
+        recommendedService: null,
+        leadScore: 0
       });
     }
     const context = conversationContexts.get(contextId);
     context.lastActivity = Date.now(); // Update activity timestamp
     context.messages.push({ role: 'user', content: message });
+
+    // 💰 FEATURE: ROI Calculator - Extract time/cost data from message
+    const roiData = extractROIData(message);
+    if (roiData.hasTimeData || roiData.hasCostData) {
+      if (roiData.hoursPerWeek) {
+        const roi = calculateROI(roiData.hoursPerWeek, roiData.hourlyRate || 50);
+        context.roiData = {
+          ...roiData,
+          ...roi,
+          calculatedAt: new Date().toISOString()
+        };
+        console.log(`💰 ROI calculated: ${roi.potentialSavings > 0 ? `$${roi.potentialSavings.toLocaleString()} annual savings, ${roi.roi}% ROI` : 'No savings potential'}`);
+      }
+    }
+
+    // 🎯 FEATURE: Service Recommender - Match pain points to services
+    const serviceRecommendation = recommendService(message);
+    if (serviceRecommendation) {
+      context.recommendedService = serviceRecommendation;
+      console.log(`🎯 Service recommended: ${serviceRecommendation.service} (confidence: ${serviceRecommendation.confidence})`);
+    }
+
+    // 📊 FEATURE: Lead Scoring - Calculate lead quality score
+    const leadScore = calculateLeadScore(context, message);
+    if (leadScore > context.leadScore) {
+      context.leadScore = leadScore;
+      const priority = getLeadPriority(leadScore);
+      console.log(`📊 Lead score updated: ${leadScore}/100 - ${priority}`);
+    }
 
     // Check for escalation request
     const escalationDetected = detectEscalation(message);
@@ -902,7 +1181,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
       // Create high-priority note in HubSpot if contact exists
       if (context.contactId && hubspotClient) {
-        await createEscalationNote(context.contactId, context.messages);
+        await createEscalationNote(context.contactId, context);
       }
     }
 
@@ -955,6 +1234,11 @@ app.post('/chat', chatLimiter, async (req, res) => {
         context.contactId = leadResult.contactId;
         leadCaptured = true;
         console.log(`✅ Lead auto-captured: ${context.contactInfo.email} (Contact ID: ${leadResult.contactId})`);
+
+        // If escalation was requested but note wasn't created yet (contactId didn't exist), create it now
+        if (context.escalationRequested && hubspotClient) {
+          await createEscalationNote(context.contactId, context);
+        }
       }
     }
 
