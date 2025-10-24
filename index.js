@@ -493,7 +493,7 @@ async function createOrUpdateContact(contactData) {
     }
 
     if (contactData.recommendedService) {
-      properties.ai_recommended_service = contactData.recommendedService;
+      properties.ai_recommended_service = serviceToHubSpotEnum(contactData.recommendedService);
     }
 
     // ROI-related custom properties
@@ -1643,12 +1643,24 @@ function calculateLeadScore(context, message) {
   return Math.min(score, 100); // Cap at 100
 }
 
-// Get lead priority label
+// Get lead priority label (HubSpot enum values: high, medium, low)
 function getLeadPriority(score) {
-  if (score >= 80) return '🔥 HOT LEAD';
-  if (score >= 60) return '⭐ WARM LEAD';
-  if (score >= 40) return '💼 QUALIFIED LEAD';
-  return '📋 COLD LEAD';
+  if (score >= 80) return 'high';      // Hot leads (80-100)
+  if (score >= 40) return 'medium';    // Warm/Qualified leads (40-79)
+  return 'low';                        // Cold leads (0-39)
+}
+
+// Convert service display names to HubSpot enum values
+function serviceToHubSpotEnum(serviceName) {
+  const serviceMap = {
+    'AI Chatbot': 'ai_chatbot',
+    'Business Intelligence': 'business_intelligence',
+    'System Integration': 'system_integration',
+    'Fractional CTO': 'fractional_cto',
+    'Marketing Automation': 'marketing_automation',
+    'Custom Software': 'custom_software'
+  };
+  return serviceMap[serviceName] || serviceName.toLowerCase().replace(/\s+/g, '_');
 }
 
 // Generate context-aware quick reply suggestions
@@ -2615,18 +2627,26 @@ app.get('/chat', (req, res) => {
 const conversationContexts = new Map();
 
 // 🤖 PHASE 3 - Conversation Analytics: Track chatbot performance metrics
-// 💾 Analytics persistence with Supabase (defaults to production)
-const supabaseUrl = process.env.SUPABASE_URL || 'https://jthmkmsetfyieqdwadbj.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp0aG1rbXNldGZ5aWVxZHdhZGJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyOTMxOTAsImV4cCI6MjA3Njg2OTE5MH0._D6yR7k6EfIZklpNdBf_3hwGjUGw6lgd0qXaitFnUkk';
-const supabase = createClient(supabaseUrl, supabaseKey);
+// 💾 Analytics persistence with Supabase
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error('⚠️  WARNING: Supabase credentials not configured. Conversation persistence will be disabled.');
+  console.error('   Set SUPABASE_URL and SUPABASE_ANON_KEY environment variables to enable analytics.');
+}
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 // In-memory cache of analytics data
 let analyticsData = null;
 
 // Load analytics from Supabase
 async function loadAnalytics() {
+  if (!supabase) {
+    return null; // Supabase not configured
+  }
+
   try {
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('analytics')
       .select('*')
       .eq('id', 1)
@@ -2664,6 +2684,10 @@ async function loadAnalytics() {
 
 // Save analytics to Supabase
 async function saveAnalytics() {
+  if (!supabase) {
+    return; // Supabase not configured
+  }
+
   if (!analyticsData) {
     console.error('❌ No analytics data to save');
     return;
@@ -3257,6 +3281,13 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
       } : null,
       // Additional fields for testing and debugging
       leadScore: context.leadScore || 0,
+      // Debug info for troubleshooting automatic capture
+      debugInfo: process.env.NODE_ENV !== 'production' ? {
+        hubspotInitialized: !!getHubSpotClient(),
+        alreadyCaptured: !!context.leadCaptured,
+        hasEmail: !!context.contactInfo.email,
+        hasName: !!context.contactInfo.name
+      } : undefined,
       emailCaptured: !!context.contactInfo.email,
       phoneCaptured: !!context.contactInfo.phone,
       nameCaptured: !!context.contactInfo.name
