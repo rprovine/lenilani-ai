@@ -36,10 +36,10 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            background: linear-gradient(135deg, #0d7377 0%, #14919d 100%);
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+            box-shadow: 0 4px 12px rgba(13, 115, 119, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -50,7 +50,7 @@
 
         #lenilani-chat-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.5);
+            box-shadow: 0 6px 20px rgba(13, 115, 119, 0.5);
         }
 
         #lenilani-chat-button.open {
@@ -99,7 +99,7 @@
         }
 
         .lenilani-chat-header {
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            background: linear-gradient(135deg, #0d7377 0%, #14919d 100%);
             color: white;
             padding: 12px 15px;
             border-radius: 20px 20px 0 0;
@@ -257,12 +257,12 @@
         }
 
         .lenilani-chat-input input:focus {
-            border-color: #0ea5e9;
+            border-color: #0d7377;
         }
 
         .lenilani-chat-input button {
             padding: 10px 18px;
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+            background: linear-gradient(135deg, #0d7377 0%, #14919d 100%);
             color: white;
             border: none;
             border-radius: 20px;
@@ -288,8 +288,8 @@
         .lenilani-suggestion-btn {
             padding: 8px 14px;
             background: white;
-            border: 2px solid #0ea5e9;
-            color: #0ea5e9;
+            border: 2px solid #0d7377;
+            color: #0d7377;
             border-radius: 20px;
             font-size: 12px;
             cursor: pointer;
@@ -300,10 +300,10 @@
         }
 
         .lenilani-suggestion-btn:hover {
-            background: #0ea5e9;
+            background: #0d7377;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+            box-shadow: 0 4px 12px rgba(13, 115, 119, 0.3);
         }
 
         .lenilani-quickstart {
@@ -342,8 +342,8 @@
         }
 
         .lenilani-quickstart-btn:hover {
-            border-color: #0ea5e9;
-            background: #f0f9ff;
+            border-color: #0d7377;
+            background: #e6f7f7;
             transform: translateY(-2px);
         }
 
@@ -360,11 +360,11 @@
 
         /* Social proof banner */
         .lenilani-social-proof {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-bottom: 1px solid #bae6fd;
+            background: linear-gradient(135deg, #e6f7f7 0%, #d1f0f0 100%);
+            border-bottom: 1px solid #a8dede;
             padding: 8px 12px;
             font-size: 11px;
-            color: #0369a1;
+            color: #0d7377;
             text-align: center;
             font-weight: 500;
         }
@@ -576,7 +576,7 @@
                         <p>AI & Technology Solutions</p>
                     </div>
                     <div class="lenilani-language-selector">
-                        <span class="lenilani-language-label">Lang:</span>
+                        <span class="lenilani-language-label">Language:</span>
                         <select class="lenilani-language-select" id="lenilani-language">
                             <option value="english">English</option>
                             <option value="pidgin">Pidgin</option>
