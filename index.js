@@ -847,6 +847,10 @@ function generateQuickReplies(context, botResponse) {
   const messageCount = context.messages.filter(m => m.role === 'user').length;
   const hasEmail = !!context.contactInfo.email;
   const lastUserMessage = context.messages.filter(m => m.role === 'user').slice(-1)[0]?.content || '';
+  const recommendedService = context.recommendedService?.service || null;
+
+  // Detect conversation topic from all messages
+  const allMessages = context.messages.map(m => m.content).join(' ').toLowerCase();
 
   // Check for escalation
   if (context.escalationRequested) {
@@ -877,14 +881,53 @@ function generateQuickReplies(context, botResponse) {
     ];
   }
 
-  // First exchange - asking about challenges
+  // Context-aware suggestions based on service/topic
   if (messageCount === 1) {
-    return [
-      "We need faster response times",
-      "Too many repetitive questions",
-      "Want to capture more leads",
-      "Need 24/7 customer support"
-    ];
+    // Use recommended service or detect topic from conversation
+    if (recommendedService === 'AI Chatbot' || allMessages.includes('chatbot') || allMessages.includes('customer support')) {
+      return [
+        "We need faster response times",
+        "Too many repetitive questions",
+        "Want to capture more leads",
+        "Need 24/7 customer support"
+      ];
+    } else if (recommendedService === 'Business Intelligence' || allMessages.includes('data') || allMessages.includes('spreadsheet') || allMessages.includes('report')) {
+      return [
+        "We're drowning in spreadsheets",
+        "Need real-time insights",
+        "Want automated reporting",
+        "Can't make sense of our data"
+      ];
+    } else if (recommendedService === 'System Integration' || allMessages.includes('multiple') || allMessages.includes('platform') || allMessages.includes('tools')) {
+      return [
+        "Too many disconnected tools",
+        "Manual data entry is killing us",
+        "Need systems to talk to each other",
+        "Want to automate workflows"
+      ];
+    } else if (recommendedService === 'Fractional CTO' || allMessages.includes('strategy') || allMessages.includes('technology') || allMessages.includes('roadmap')) {
+      return [
+        "Need technology strategy",
+        "Don't know what to build vs buy",
+        "Want a tech roadmap",
+        "Need help evaluating vendors"
+      ];
+    } else if (recommendedService === 'Marketing Automation' || allMessages.includes('marketing') || allMessages.includes('hubspot') || allMessages.includes('leads')) {
+      return [
+        "Lead generation is slow",
+        "Manual marketing tasks",
+        "Need better lead nurturing",
+        "Want to automate campaigns"
+      ];
+    } else {
+      // Generic business challenges
+      return [
+        "We're wasting too much time",
+        "Processes are inefficient",
+        "Need to scale operations",
+        "Looking for technology solutions"
+      ];
+    }
   }
 
   // Second exchange - asking for more details
