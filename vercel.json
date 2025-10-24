@@ -32,6 +32,14 @@
       "dest": "/public/index.html"
     },
     {
+      "src": "/widget-demo.html",
+      "dest": "/public/widget-demo.html"
+    },
+    {
+      "src": "/lenilani-chatbot-widget.js",
+      "dest": "/public/lenilani-chatbot-widget.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.js"
     }
