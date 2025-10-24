@@ -1,6 +1,6 @@
 {
   "name": "lenilani-ai",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "LeniLani AI - Intelligent Business Consultation Chatbot for Lead Qualification",
   "main": "index.js",
   "scripts": {
