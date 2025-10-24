@@ -3058,9 +3058,9 @@ app.post('/chat', chatLimiter, async (req, res) => {
     const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
     const phoneRegex = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/;
     // Name patterns: "I'm John", "My name is Sarah", "This is Michael", "name's David"
-    // Removed /i flag to require proper capitalization (prevents "I'm interested" from matching)
+    // Case-insensitive for trigger phrases, but name itself must be properly capitalized
     const namePatterns = [
-      /(?:I'm|I am|my name is|this is|name's|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/,
+      /(?:I'm|I am|[Mm]y name is|[Tt]his is|name's|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/,
       /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:here|speaking)/
     ];
 
