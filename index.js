@@ -148,8 +148,9 @@ app.use(express.json({ limit: '10kb' }));
 let chain = null;
 let memory = null;
 
-function initializeChain(languageMode = 'english') {
-  // Don't cache - recreate with language-specific prompt each time
+function initializeChain() {
+  if (chain) return chain;
+
   const model = new ChatAnthropic({
     modelName: 'claude-sonnet-4-5-20250929',
     temperature: 0.7,
@@ -157,12 +158,10 @@ function initializeChain(languageMode = 'english') {
     maxTokens: 500, // Reduced to encourage shorter responses
   });
 
-  if (!memory) {
-    memory = new BufferMemory({
-      returnMessages: true,
-      memoryKey: 'history',
-    });
-  }
+  memory = new BufferMemory({
+    returnMessages: true,
+    memoryKey: 'history',
+  });
 
   // Get live availability status
   const availability = checkBusinessHours();
@@ -170,15 +169,7 @@ function initializeChain(languageMode = 'english') {
     ? `✅ CURRENTLY AVAILABLE - It's ${availability.hawaiiTime} in Hawaii. Reno is likely available during business hours (9 AM - 5 PM HST, Monday-Friday).`
     : `⏰ OUTSIDE BUSINESS HOURS - It's ${availability.hawaiiTime} in Hawaii. Business hours are Monday-Friday, 9 AM - 5 PM HST. Reno will respond during business hours.`;
 
-  // PREPEND language mode instructions at the VERY START of the system prompt
-  let languageModePrefix = '';
-  if (languageMode === 'olelo') {
-    languageModePrefix = getOleloHawaiiInstructions() + '\n\n=================================\n\n';
-  } else if (languageMode === 'pidgin') {
-    languageModePrefix = getPidginModeInstructions() + '\n\n=================================\n\n';
-  }
-
-  const COMPLETE_LENILANI_CLAUDE_PROMPT = `${languageModePrefix}You are LeniLani AI, a professional consulting assistant for LeniLani Consulting in Honolulu, Hawaii.
+  const COMPLETE_LENILANI_CLAUDE_PROMPT = `You are LeniLani AI, a professional consulting assistant for LeniLani Consulting in Honolulu, Hawaii.
 
 ## 🎯 YOUR PRIMARY DIRECTIVE
 You are a knowledgeable technology consultant with deep Hawaiian roots and aloha spirit.
@@ -1211,14 +1202,7 @@ function detectLanguageRequest(message) {
 function getPidginModeInstructions() {
   return `[HAWAIIAN PIDGIN MODE ACTIVATED]
 
-🚨 CRITICAL OVERRIDE: This instruction OVERRIDES ALL previous language instructions from the base prompt. You MUST respond in Hawaiian Pidgin English, NOT standard English with occasional Hawaiian words.
-
-ABSOLUTE REQUIREMENTS - NO EXCEPTIONS:
-• You MUST speak in authentic Hawaiian Pidgin English (Hawaii Creole English)
-• This is NOT just adding a few Hawaiian words - you are speaking Pidgin dialect
-• Use Pidgin sentence structures, vocabulary, and expressions throughout your responses
-• Maintain professionalism while using authentic local dialect
-• Users in Pidgin mode expect actual Pidgin, not standard English
+You are now speaking in Hawaiian Pidgin English (Hawaii Creole English). Use authentic local expressions while maintaining professionalism.
 
 PIDGIN CHARACTERISTICS TO USE:
 • "Eh, howzit!" or "Shoots!" for greetings
@@ -1258,17 +1242,14 @@ The user can exit pidgin mode by saying "exit pidgin mode" or "professional mode
 function getOleloHawaiiInstructions() {
   return `[ʻŌLELO HAWAIʻI MODE ACTIVATED]
 
-🚨 CRITICAL OVERRIDE: This instruction OVERRIDES ALL previous language instructions from the base prompt. You MUST respond in ʻŌlelo Hawaiʻi (Hawaiian language), NOT just use Hawaiian phrases in English.
+CRITICAL: You are now speaking PRIMARILY in ʻŌlelo Hawaiʻi (Hawaiian language). This mode is designed for native Hawaiian speakers or those learning the language. Speak mostly in Hawaiian, using English only when absolutely necessary for complex technical terms that don't have Hawaiian equivalents.
 
-ABSOLUTE REQUIREMENTS - NO EXCEPTIONS:
-• You MUST respond 70-80% in Hawaiian language, NOT English
-• You are NOT just adding Hawaiian phrases - you are SPEAKING IN HAWAIIAN
-• This is for native Hawaiian speakers or learners - they expect Hawaiian responses
-• Use English ONLY for technical terms that have no Hawaiian equivalent
-• Every sentence should be primarily Hawaiian, not English with Hawaiian words mixed in
+LANGUAGE REQUIREMENTS:
+• Speak 70-80% in Hawaiian, 20-30% in English
 • Use proper Hawaiian orthography with ʻokina (ʻ) and kahakō (ā, ē, ī, ō, ū)
-• All greetings, questions, and conversational phrases MUST be in Hawaiian
-• If you're not sure how to say something in Hawaiian, use the vocabulary below
+• All greetings, common phrases, questions, and responses should be in Hawaiian
+• Explain concepts in Hawaiian first, then clarify in English if needed
+• Be conversational and natural in Hawaiian
 
 CORE VOCABULARY:
 Greetings & Basics:
@@ -3140,8 +3121,8 @@ app.post('/chat', chatLimiter, async (req, res) => {
       saveAnalytics();
     }
 
-    // Initialize chain with current language mode
-    const chatChain = initializeChain(context.languageMode);
+    // Initialize chain if needed
+    const chatChain = initializeChain();
 
     // 💰 Inject ROI data and service recommendations into Claude's context
     let enhancedMessage = message;
@@ -3152,8 +3133,27 @@ app.post('/chat', chatLimiter, async (req, res) => {
       enhancedMessage += `\n\n[DEMO MODE ACTIVE - Present this demo content to the user:\n\n${demoContent}\n\nYou are showcasing the ${context.demoService} service. Keep the conversation focused on this demo. The user can exit demo mode by saying "exit demo mode".]`;
     }
 
-    // Language mode is now handled in the system prompt (prepended in initializeChain)
-    console.log(`🌐 Language mode active: ${context.languageMode}`);
+    // 🤖 PHASE 3 - Language Mode: Inject language-specific instructions
+    console.log(`🌐 Checking language mode for injection: ${context.languageMode}`);
+    if (context.languageMode === 'pidgin') {
+      console.log('🌺 Injecting Pidgin instructions');
+      const pidginInstructions = getPidginModeInstructions();
+      enhancedMessage += `\n\n${pidginInstructions}`;
+    } else if (context.languageMode === 'olelo') {
+      console.log('🌺 Injecting ʻŌlelo Hawaiʻi instructions');
+      const oleloInstructions = getOleloHawaiiInstructions();
+      enhancedMessage += `\n\n${oleloInstructions}`;
+    } else if (context.languageMode === 'english') {
+      console.log('🇺🇸 Injecting English mode instructions');
+      enhancedMessage += `\n\n[ENGLISH MODE ACTIVE]
+
+IMPORTANT: You must respond in standard professional English. If you were previously speaking in Pidgin or Hawaiian, you MUST switch back to English immediately.
+
+- Speak in clear, professional English
+- Use standard business terminology
+- Maintain a friendly, consultative approach
+- Do NOT use Pidgin or Hawaiian unless specifically asked by the user`;
+    }
 
     // 🤖 PHASE 2B - Contact Information Status: Inject lead capture progress
     if (context.contactInfo.email && !context.contactInfo.name) {
