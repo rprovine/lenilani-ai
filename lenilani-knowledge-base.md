@@ -158,22 +158,67 @@ LeniLani Consulting is a kama'aina (locally-owned) Hawaii-based AI and technolog
 
 ## PRICING & PACKAGES
 
-### Standard Pricing Model
-- **Starting Rate**: $1,500/month for complete technology solutions
+### Pricing Philosophy
+- **Custom Scope-Based Pricing**: Every project is unique - pricing is determined by project scope, complexity, and specific requirements
+- **Market-Rate Research**: Solutions are priced competitively based on current market rates for similar services
+- **Transparent Approach**: Detailed budget breakdowns provided during consultation, no hidden fees
 - **Contract Terms**: Month-to-month flexible contracts (no long-term commitments)
 - **Positioning**: "Enterprise solutions, small business pricing"
-- **Payment Structure**: Transparent pricing with no hidden fees
 
-### AI Chatbot Specific Pricing
-- **One-time Setup**: $1,000 for complete implementation
-- **Monthly API Costs**: Based on usage with 30% service markup
-- **Estimated Monthly Cost**: ~$65/month for 10,000 messages
-- **Includes**: Custom personality training, lead qualification system, 30 days of support
+### How Pricing is Determined
+When discussing a project, the AI will consider these factors to provide budget guidance:
+
+**Project Complexity Factors:**
+- Number of integrations required
+- Custom development vs. off-the-shelf solutions
+- Data volume and processing requirements
+- Level of customization needed
+- Ongoing support and maintenance needs
+- Timeline and urgency
+
+**Market Rate Benchmarks:**
+- AI Chatbot Development: Typically ranges from $2,500-$15,000 for setup depending on complexity (basic template vs. multi-integration enterprise solution)
+- Business Intelligence Dashboards: $3,000-$25,000 based on data sources and custom visualizations
+- System Integration Projects: $2,000-$20,000 depending on number of systems and complexity
+- Fractional CTO Services: $2,500-$10,000/month based on hours and strategic involvement
+- Marketing Automation: $2,000-$12,000 for setup, plus ongoing management fees
+
+**Example Project Ranges:**
+- **Basic AI Chatbot** (single integration, template personality): $2,500-$5,000 setup + API costs (~$50-$150/month)
+- **Advanced AI Chatbot** (multi-channel, custom training, CRM integration): $8,000-$15,000 setup + API costs
+- **Simple Dashboard** (1-2 data sources, standard visualizations): $3,000-$7,000
+- **Enterprise Dashboard** (multiple sources, custom analytics, real-time data): $15,000-$25,000
 
 ### Hawaiian Potluck Special Promotion
 - **Offer**: $250,000 in AI solutions valued at $500 per business
 - **Eligibility**: Limited to first 100 Hawaiian businesses
 - **Purpose**: Community investment and support for local businesses
+
+### Pricing Conversation Guidelines (For AI)
+
+When prospects ask about pricing, follow this approach:
+
+1. **Ask Qualifying Questions First:**
+   - What specific problem are they trying to solve?
+   - What systems/tools do they currently use?
+   - How many integrations or data sources are involved?
+   - What's their timeline and urgency?
+   - What's their expected message volume / data volume?
+
+2. **Provide Context-Appropriate Range:**
+   Based on their answers, reference the appropriate market rate benchmark:
+   - "For a chatbot like what you're describing, market rates typically range from $2,500-$5,000 for the initial setup"
+   - "Based on the complexity you've mentioned with multiple integrations, this would fall in the $8,000-$15,000 range"
+   - "Dashboard projects with those data sources typically range from $7,000-$15,000"
+
+3. **Emphasize Value & Consultation:**
+   - "The exact investment would be determined during our free consultation where we'll create a detailed scope and budget"
+   - "Reno personally provides custom quotes based on your specific requirements"
+   - "We research current market rates to ensure competitive,  fair pricing"
+
+4. **Offer Next Step:**
+   - Always suggest booking a consultation for a detailed assessment and custom quote
+   - Emphasize the consultation is free with no commitment required
 
 ---
 
@@ -351,11 +396,12 @@ Strong commitment to Hawaii's small business community through affordable pricin
 - Transparent pricing and communication
 
 ### How Does Pricing Work?
-- Month-to-month contracts starting at $1,500/month
-- Project-based pricing available
-- Free initial consultation and assessment
-- Transparent cost breakdowns
-- No hidden fees
+- **Custom Scope-Based Pricing**: Every project is priced based on specific requirements and complexity
+- **Market-Rate Competitive**: Pricing is based on current market rates research for similar solutions
+- **Project Ranges**: Solutions typically range from $2,500-$25,000 depending on scope and complexity
+- **Free Initial Consultation**: Detailed assessment and custom quote provided during consultation
+- **Transparent Budgets**: Detailed cost breakdowns with no hidden fees
+- **Flexible Contracts**: Month-to-month terms available, no long-term commitments required
 
 ### What's the Implementation Timeline?
 - Initial consultation: 30 minutes
