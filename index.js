@@ -1872,9 +1872,36 @@ app.get('/api/analytics', (req, res) => {
 });
 
 // 📊 PHASE 4B - Advanced Analytics Dashboard: Get enhanced analytics with visualization data
-app.get('/api/analytics/dashboard', (req, res) => {
+app.get('/api/analytics/dashboard', async (req, res) => {
   try {
     const { timeRange = '7d' } = req.query; // 24h, 7d, 30d, all
+
+    // 💾 Load analytics from Supabase (persistent storage, survives serverless cold starts)
+    const { data: analyticsFromDB, error: analyticsError } = await supabase
+      .from('analytics')
+      .select('*')
+      .eq('id', 1)
+      .single();
+
+    if (analyticsError) {
+      console.error('Error loading analytics from Supabase:', analyticsError.message);
+      return res.status(500).json({ error: 'Unable to fetch analytics data' });
+    }
+
+    // Use database data instead of in-memory data
+    const analyticsData = {
+      totalConversations: analyticsFromDB.total_conversations,
+      totalMessages: analyticsFromDB.total_messages,
+      emailsCaptured: analyticsFromDB.emails_captured,
+      phonesCaptured: analyticsFromDB.phones_captured,
+      demosRequested: analyticsFromDB.demos_requested,
+      roiCalculations: analyticsFromDB.roi_calculations,
+      pidginModeActivations: analyticsFromDB.pidgin_mode_activations,
+      escalationsRequested: analyticsFromDB.escalations_requested,
+      leadScores: analyticsFromDB.lead_scores,
+      serviceRecommendations: analyticsFromDB.service_recommendations,
+      conversationsByDay: analyticsFromDB.conversations_by_day
+    };
 
     // Calculate dynamic metrics
     const activeConversations = conversationContexts.size;
