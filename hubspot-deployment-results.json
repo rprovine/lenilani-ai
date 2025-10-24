@@ -1,0 +1,95 @@
+{
+  "emailsCreated": [
+    {
+      "key": "welcomeEmail",
+      "id": "manual-welcomeEmail",
+      "name": "AI Chatbot Lead - Immediate Welcome",
+      "manual": true
+    },
+    {
+      "key": "highPriorityAlert",
+      "id": "manual-highPriorityAlert",
+      "name": "AI Chatbot - High Priority Lead Fast Track",
+      "manual": true
+    },
+    {
+      "key": "aiChatbotNurture",
+      "id": "manual-aiChatbotNurture",
+      "name": "AI Chatbot Service - Value Nurture",
+      "manual": true
+    },
+    {
+      "key": "businessIntelligenceNurture",
+      "id": "manual-businessIntelligenceNurture",
+      "name": "Business Intelligence - Value Nurture",
+      "manual": true
+    },
+    {
+      "key": "systemIntegrationNurture",
+      "id": "manual-systemIntegrationNurture",
+      "name": "System Integration - Value Nurture",
+      "manual": true
+    },
+    {
+      "key": "fractionalCTONurture",
+      "id": "manual-fractionalCTONurture",
+      "name": "Fractional CTO - Value Nurture",
+      "manual": true
+    },
+    {
+      "key": "reengagementEmail",
+      "id": "manual-reengagementEmail",
+      "name": "AI Chatbot Lead - Re-engagement",
+      "manual": true
+    },
+    {
+      "key": "meetingConfirmation",
+      "id": "manual-meetingConfirmation",
+      "name": "Meeting Booked - Confirmation & Prep",
+      "manual": true
+    }
+  ],
+  "workflowsCreated": [
+    {
+      "name": "🚀 AI Chatbot - Welcome & Qualify",
+      "enabled": false
+    },
+    {
+      "name": "⚡ High Priority - Fast Track",
+      "enabled": false
+    },
+    {
+      "name": "🤖 AI Chatbot - Service Nurture",
+      "enabled": false
+    },
+    {
+      "name": "📊 Business Intelligence - Nurture",
+      "enabled": false
+    },
+    {
+      "name": "🔗 System Integration - Nurture",
+      "enabled": false
+    },
+    {
+      "name": "👔 Fractional CTO - Nurture",
+      "enabled": false
+    },
+    {
+      "name": "💰 High ROI - Alert & Fast Track",
+      "enabled": false
+    },
+    {
+      "name": "📅 Meeting Booked - Follow-up",
+      "enabled": false
+    },
+    {
+      "name": "❄️ Cold Lead - Re-engagement",
+      "enabled": false
+    },
+    {
+      "name": "🎯 Post-Meeting - Conversion",
+      "enabled": false
+    }
+  ],
+  "errors": []
+}
