@@ -3028,16 +3028,18 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
     // Generate context-aware quick reply suggestions
     const suggestions = generateQuickReplies(context, response.response);
 
-    // Auto-capture lead if email is provided and HubSpot is configured
+    // Auto-capture lead if email AND name are provided and HubSpot is configured
     let leadCaptured = false;
     console.log(`🔍 HubSpot auto-capture check:`);
     console.log(`   Email captured: ${!!context.contactInfo.email}`);
     console.log(`   Email value: ${context.contactInfo.email || 'none'}`);
+    console.log(`   Name captured: ${!!context.contactInfo.name}`);
+    console.log(`   Name value: ${context.contactInfo.name || 'none'}`);
     console.log(`   HubSpot client: ${hubspotClient ? 'initialized' : 'NULL'}`);
     console.log(`   Already captured: ${context.leadCaptured ? 'YES' : 'NO'}`);
 
-    if (context.contactInfo.email && hubspotClient && !context.leadCaptured) {
-      console.log('✅ All conditions met - proceeding with HubSpot lead capture...');
+    if (context.contactInfo.email && context.contactInfo.name && hubspotClient && !context.leadCaptured) {
+      console.log('✅ All conditions met (email + name) - proceeding with HubSpot lead capture...');
       // Build conversation summary with proper formatting
       const conversationSummary = context.messages
         .map((msg, index) => {
