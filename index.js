@@ -3015,28 +3015,40 @@ app.post('/chat', chatLimiter, async (req, res) => {
     const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
     const phoneRegex = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/;
     // Name patterns: "I'm John", "My name is Sarah", "This is Michael", "name's David"
+    // Removed /i flag to require proper capitalization (prevents "I'm interested" from matching)
     const namePatterns = [
-      /(?:I'm|I am|my name is|this is|name's|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-      /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:here|speaking)/i
+      /(?:I'm|I am|my name is|this is|name's|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/,
+      /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:here|speaking)/
     ];
 
     const emailMatch = message.match(emailRegex);
     const phoneMatch = message.match(phoneRegex);
 
-    // Try to extract name if we don't have it yet
-    if (!context.contactInfo.name) {
-      for (const pattern of namePatterns) {
-        const nameMatch = message.match(pattern);
-        if (nameMatch && nameMatch[1]) {
-          // Capitalize properly
-          const name = nameMatch[1].trim();
-          // Only accept if it looks like a real name (not common words)
-          const commonWords = ['test', 'demo', 'example', 'hello', 'hi', 'yes', 'no', 'okay', 'sure'];
-          if (!commonWords.includes(name.toLowerCase()) && name.length > 1) {
-            context.contactInfo.name = name;
-            console.log(`👤 Name detected: ${name}`);
-            break;
-          }
+    // Try to extract name (allow updates if better match found with proper capitalization)
+    for (const pattern of namePatterns) {
+      const nameMatch = message.match(pattern);
+      if (nameMatch && nameMatch[1]) {
+        const name = nameMatch[1].trim();
+
+        // Blacklist common false positives
+        const commonWords = [
+          'test', 'demo', 'example', 'hello', 'hi', 'yes', 'no', 'okay', 'sure',
+          'interested', 'looking', 'thinking', 'checking', 'wondering', 'asking',
+          'trying', 'hoping', 'planning', 'considering', 'exploring'
+        ];
+
+        // Only accept if:
+        // 1. Not in blacklist
+        // 2. Longer than 1 character
+        // 3. First letter is capitalized (proper name)
+        // 4. We don't have a name yet, OR this one looks better (not a blacklisted word)
+        if (!commonWords.includes(name.toLowerCase()) &&
+            name.length > 1 &&
+            name[0] === name[0].toUpperCase() &&
+            (!context.contactInfo.name || commonWords.includes(context.contactInfo.name.toLowerCase()))) {
+          context.contactInfo.name = name;
+          console.log(`👤 Name detected: ${name}`);
+          break;
         }
       }
     }
