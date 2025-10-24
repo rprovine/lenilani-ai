@@ -831,15 +831,15 @@
             const bookingCard = document.createElement('div');
             bookingCard.classList.add('escalation-card');
             bookingCard.style.background = '#f0fdf4';
-            bookingCard.style.borderColor = '#10b981';
+            bookingCard.style.border = '2px solid #10b981';
             bookingCard.innerHTML = `
-                <h3>📅 Book Your Free Consultation</h3>
-                <p>Schedule a 30-minute consultation with Reno to discuss your project.</p>
+                <h3 style="color: #065f46;">📅 Book Your Free Consultation</h3>
+                <p style="color: #047857;">Schedule a 30-minute consultation with Reno to discuss your project.</p>
                 <div class="contact-options">
-                    <a href="${'https://meetings-na2.hubspot.com/reno?uuid=ee86f3dc-1bde-4684-8460-c998aef13e65'}" target="_blank" class="contact-btn" style="background: #10b981;">
+                    <a href="${'https://meetings-na2.hubspot.com/reno?uuid=ee86f3dc-1bde-4684-8460-c998aef13e65'}" target="_blank" class="contact-btn" style="background: #10b981; color: white; font-weight: 600;">
                         📅 View Available Times
                     </a>
-                    <button class="contact-btn" style="background: #6b7280;" onclick="this.parentElement.parentElement.remove();">
+                    <button class="contact-btn" style="background: #6b7280; color: white; font-weight: 600;" onclick="this.parentElement.parentElement.remove();">
                         ✕ Close
                     </button>
                 </div>
