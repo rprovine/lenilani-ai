@@ -16,7 +16,14 @@ An advanced AI-powered chatbot and lead qualification system built for LeniLani 
 - **Automatic Lead Capture to HubSpot** ✅ **PRODUCTION READY** - Detects email addresses and automatically creates/updates HubSpot contacts with full conversation tracking and source attribution ("LeniLani AI Chatbot")
   - Lazy initialization for serverless environments (Vercel)
   - Automatic contact creation with email, name, phone, and conversation summary
-  - Optional custom properties for lead scoring and service recommendations
+  - AI-powered custom properties for lead intelligence:
+    * `ai_lead_score` - Numerical score (0-100) based on conversation quality
+    * `ai_lead_priority` - High/Medium/Low priority flag
+    * `ai_recommended_service` - AI-detected service match (AI Chatbot, BI, etc.)
+    * `ai_annual_savings` - Estimated cost savings in dollars
+    * `ai_roi_percentage` - Calculated ROI based on user input
+    * `ai_hours_per_week` - Hours spent on manual work (automation opportunity)
+    * `ai_work_type` - Description of manual work being done
 - **Intelligent Lead Qualification** - Progressive contact information collection through natural conversation
 - **Business Consultation Mode** - Demonstrates deep domain expertise in AI/ML, data science, and technology strategy
 - **Paragraph-Formatted Responses** - Clean, readable responses with proper paragraph breaks
