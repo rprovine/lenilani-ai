@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeniLani AI Chatbot Widget - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            color: #333;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .card ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .card ul li {
+            color: #666;
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .card ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .installation {
+            background: #1e293b;
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .installation h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .installation code {
+            display: block;
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            color: #10b981;
+            margin: 15px 0;
+        }
+
+        .installation p {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .cta {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .cta h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .cta p {
+            font-size: 18px;
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #059669;
+            padding: 15px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-button.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .hero {
+                padding: 40px 20px;
+            }
+
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <div class="badge">🤖 Live Demo</div>
+            <h1>LeniLani AI Chatbot</h1>
+            <p>Experience the power of AI-driven customer engagement for your Hawaii business</p>
+            <p style="font-size: 16px; color: #999; margin-top: 20px;">
+                👉 Look for the blue chat button in the bottom-right corner to try it out!
+            </p>
+        </div>
+
+        <div class="content">
+            <div class="card">
+                <h2>🚀 Quick Installation</h2>
+                <p>Add our chatbot to any website with a single line of code. No signup required, no complicated setup.</p>
+                <ul>
+                    <li>Works with any website platform</li>
+                    <li>WordPress, Shopify, Squarespace ready</li>
+                    <li>Fully responsive design</li>
+                    <li>Mobile-optimized</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>🎯 Smart Features</h2>
+                <p>Built specifically for Hawaii businesses with AI-powered conversations.</p>
+                <ul>
+                    <li>Automatic lead capture to HubSpot</li>
+                    <li>Hawaiian Pidgin & ʻŌlelo Hawaiʻi support</li>
+                    <li>ROI calculations for prospects</li>
+                    <li>Service recommendations</li>
+                    <li>24/7 availability</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>💼 Business Benefits</h2>
+                <p>Reduce support costs and capture more leads automatically.</p>
+                <ul>
+                    <li>30+ years combined experience</li>
+                    <li>Local Hawaii business focus</li>
+                    <li>Instant responses to inquiries</li>
+                    <li>Lead qualification & routing</li>
+                    <li>Meeting booking integration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="installation">
+            <h2>📦 Installation Code</h2>
+            <p>Copy and paste this single line before the closing &lt;/body&gt; tag on your website:</p>
+            <code>&lt;script src="https://ai-bot-special.lenilani.com/lenilani-chatbot-widget.js"&gt;&lt;/script&gt;</code>
+            <p style="margin-top: 20px;">That's it! The chatbot will automatically appear on your site.</p>
+        </div>
+
+        <div class="cta">
+            <h2>Ready to Add AI to Your Website?</h2>
+            <p>Join Hawaii businesses already using LeniLani AI to engage customers and capture leads automatically.</p>
+            <div class="cta-buttons">
+                <a href="mailto:reno@lenilani.com" class="cta-button">
+                    📧 Get Started - Email Reno
+                </a>
+                <a href="tel:+18087661164" class="cta-button secondary">
+                    📞 Call (808) 766-1164
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 LeniLani Consulting | Hawaii's Premier AI & Technology Solutions</p>
+            <p><a href="https://lenilani.com">lenilani.com</a> | <a href="mailto:reno@lenilani.com">reno@lenilani.com</a></p>
+        </div>
+    </div>
+
+    <!-- LeniLani AI Chatbot Widget -->
+    <script src="/lenilani-chatbot-widget.js"></script>
+</body>
+</html>
