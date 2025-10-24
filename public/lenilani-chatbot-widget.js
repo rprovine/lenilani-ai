@@ -580,7 +580,7 @@
                         <select class="lenilani-language-select" id="lenilani-language">
                             <option value="english">English</option>
                             <option value="pidgin">Pidgin</option>
-                            <option value="hawaiian">ʻŌlelo</option>
+                            <option value="olelo">ʻŌlelo Hawaiʻi</option>
                         </select>
                     </div>
                 </div>
