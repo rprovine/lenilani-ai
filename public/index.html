@@ -498,6 +498,14 @@
         const typingIndicator = document.getElementById('typingIndicator');
         const quickstartContainer = document.getElementById('quickstartContainer');
 
+        // Smart scroll - only auto-scroll if user is already near the bottom
+        function smartScroll() {
+            const isNearBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 150;
+            if (isNearBottom) {
+                smartScroll();
+            }
+        }
+
         messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendMessage();
@@ -513,7 +521,7 @@
             
             // Show typing indicator
             typingIndicator.style.display = 'block';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            smartScroll();
             
             try {
                 const response = await fetch('/chat', {
@@ -660,7 +668,7 @@
                 chatContainer.appendChild(suggestionsContainer);
             }
 
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            smartScroll();
         }
 
         function handleSuggestionClick(suggestionText) {
@@ -685,7 +693,7 @@
 
             // Show typing indicator
             typingIndicator.style.display = 'block';
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            smartScroll();
 
             try {
                 const response = await fetch('/chat', {
@@ -786,7 +794,7 @@
             `;
 
             chatContainer.appendChild(escalationCard);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            smartScroll();
         }
 
         // ===== PHASE 4 FEATURES =====
@@ -846,7 +854,7 @@
             `;
 
             chatContainer.appendChild(bookingCard);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            smartScroll();
         }
 
         // Initialize Phase 4 features on page load
