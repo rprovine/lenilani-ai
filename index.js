@@ -2650,6 +2650,81 @@ async function saveAnalytics() {
   }
 }
 
+// 💾 Conversation Persistence - Load conversation from Supabase
+async function loadConversation(sessionId) {
+  try {
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('*')
+      .eq('session_id', sessionId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned - conversation doesn't exist yet
+        return null;
+      }
+      console.error(`Error loading conversation ${sessionId}:`, error.message);
+      return null;
+    }
+
+    // Convert database format to context format
+    const context = {
+      contactInfo: data.contact_info || {},
+      leadScore: data.lead_score || 0,
+      escalationRequested: data.escalation_requested || false,
+      leadCaptured: data.lead_captured || false,
+      contactId: data.contact_id || null,
+      demoMode: data.demo_mode || null,
+      recommendedService: data.recommended_service || null,
+      roiData: data.roi_data || null,
+      messages: data.messages || [],
+      lastActivity: new Date(data.updated_at).getTime()
+    };
+
+    console.log(`📥 Loaded conversation from Supabase: ${sessionId}`);
+    return context;
+  } catch (error) {
+    console.error(`Error loading conversation ${sessionId}:`, error.message);
+    return null;
+  }
+}
+
+// 💾 Conversation Persistence - Save conversation to Supabase
+async function saveConversation(sessionId, context) {
+  try {
+    const conversationData = {
+      session_id: sessionId,
+      contact_info: context.contactInfo || {},
+      lead_score: context.leadScore || 0,
+      escalation_requested: context.escalationRequested || false,
+      lead_captured: context.leadCaptured || false,
+      contact_id: context.contactId || null,
+      demo_mode: context.demoMode || null,
+      recommended_service: context.recommendedService || null,
+      roi_data: context.roiData || null,
+      messages: context.messages || []
+    };
+
+    const { error } = await supabase
+      .from('conversations')
+      .upsert(conversationData, {
+        onConflict: 'session_id'
+      });
+
+    if (error) {
+      console.error(`Error saving conversation ${sessionId}:`, error.message);
+      return false;
+    }
+
+    console.log(`💾 Saved conversation to Supabase: ${sessionId}`);
+    return true;
+  } catch (error) {
+    console.error(`Error saving conversation ${sessionId}:`, error.message);
+    return false;
+  }
+}
+
 // Track server start time for uptime calculations
 const serverStartTime = Date.now();
 
@@ -2734,38 +2809,52 @@ app.post('/chat', chatLimiter, async (req, res) => {
       return res.status(503).json({ error: 'Service busy, please try again later' });
     }
 
-    // Track conversation context
+    // Track conversation context - LOAD FROM SUPABASE FIRST
     const contextId = sessionId || 'default';
-    const isNewConversation = !conversationContexts.has(contextId);
+    let context = conversationContexts.get(contextId);
+    let isNewConversation = false;
 
-    if (isNewConversation) {
-      conversationContexts.set(contextId, {
-        messages: [],
-        contactInfo: {},
-        escalationRequested: false,
-        lastActivity: Date.now(),
-        roiData: null,
-        recommendedService: null,
-        leadScore: 0,
-        demoMode: false, // 🤖 PHASE 3 - Demo Request Feature
-        demoService: null, // 🤖 PHASE 3 - Demo Request Feature
-        languageMode: 'english' // 🤖 PHASE 3 - Hawaiian Pidgin Mode
-      });
+    // If not in memory, try loading from Supabase
+    if (!context) {
+      context = await loadConversation(contextId);
 
-      // 🤖 PHASE 3 - Analytics: Track new conversation
-      analyticsData.totalConversations++;
-      const today = new Date().toISOString().split('T')[0];
-      analyticsData.conversationsByDay[today] = (analyticsData.conversationsByDay[today] || 0) + 1;
-      saveAnalytics();
+      if (context) {
+        // Found in Supabase - restore to memory
+        conversationContexts.set(contextId, context);
+        console.log(`📥 Restored conversation from Supabase: ${contextId}`);
+      } else {
+        // Truly new conversation - create it
+        isNewConversation = true;
+        context = {
+          messages: [],
+          contactInfo: {},
+          escalationRequested: false,
+          lastActivity: Date.now(),
+          roiData: null,
+          recommendedService: null,
+          leadScore: 0,
+          leadCaptured: false,
+          contactId: null,
+          demoMode: false,
+          demoService: null,
+          languageMode: 'english'
+        };
+        conversationContexts.set(contextId, context);
 
-      // 🎯 PHASE 4B - Social Proof: Track new conversation activity
-      addSocialProofActivity('conversation', {
-        name: 'A visitor',
-        location: 'Hawaii'
-      });
+        // 🤖 PHASE 3 - Analytics: Track new conversation
+        analyticsData.totalConversations++;
+        const today = new Date().toISOString().split('T')[0];
+        analyticsData.conversationsByDay[today] = (analyticsData.conversationsByDay[today] || 0) + 1;
+        saveAnalytics();
+
+        // 🎯 PHASE 4B - Social Proof: Track new conversation activity
+        addSocialProofActivity('conversation', {
+          name: 'A visitor',
+          location: 'Hawaii'
+        });
+      }
     }
 
-    const context = conversationContexts.get(contextId);
     context.lastActivity = Date.now(); // Update activity timestamp
 
     // Update language mode if provided in request
@@ -3093,6 +3182,9 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
     } else {
       console.log('⏭️  Skipping HubSpot lead capture - conditions not met');
     }
+
+    // 💾 Save conversation to Supabase (persist state across serverless cold starts)
+    await saveConversation(contextId, context);
 
     res.json({
       response: response.response,
