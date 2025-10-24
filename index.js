@@ -429,6 +429,23 @@ async function createOrUpdateContact(contactData) {
       message: contactData.message || 'Lead from LeniLani AI Chatbot',
     };
 
+    // 🤖 PHASE 3 - Automated Follow-Up: Add lead intelligence properties
+    if (contactData.leadScore !== undefined) {
+      properties.ai_lead_score = contactData.leadScore.toString();
+      properties.ai_lead_priority = contactData.leadPriority || '';
+    }
+
+    if (contactData.recommendedService) {
+      properties.ai_recommended_service = contactData.recommendedService;
+    }
+
+    if (contactData.roiData) {
+      properties.ai_annual_savings = contactData.roiData.potentialSavings?.toString() || '';
+      properties.ai_roi_percentage = contactData.roiData.roi?.toString() || '';
+      properties.ai_hours_per_week = contactData.roiData.hoursPerWeek?.toString() || '';
+      properties.ai_work_type = contactData.roiData.workType || '';
+    }
+
     // Try to find existing contact by email
     let contactId = null;
     try {
@@ -475,6 +492,11 @@ async function createOrUpdateContact(contactData) {
       await addNoteToContact(contactId, contactData.conversationSummary);
     }
 
+    // 🤖 PHASE 3 - Automated Follow-Up: Trigger workflow based on lead score
+    if (contactData.leadScore !== undefined) {
+      await enrollInFollowUpWorkflow(contactId, contactData.leadScore, contactData.recommendedService);
+    }
+
     return {
       success: true,
       contactId,
@@ -487,6 +509,108 @@ async function createOrUpdateContact(contactData) {
       success: false,
       error: error.message
     };
+  }
+}
+
+// 🤖 PHASE 3 - Automated Follow-Up System
+async function enrollInFollowUpWorkflow(contactId, leadScore, recommendedService) {
+  if (!hubspotClient) return;
+
+  try {
+    // Determine workflow ID based on lead priority
+    // NOTE: These workflow IDs need to be created in HubSpot first
+    // For now, we'll log the enrollment intent
+    const leadPriority = getLeadPriority(leadScore);
+
+    console.log(`🔄 Follow-up workflow triggered:
+    Contact ID: ${contactId}
+    Lead Score: ${leadScore}/100
+    Priority: ${leadPriority}
+    Recommended Service: ${recommendedService || 'None'}`);
+
+    // In production, you would enroll contacts in specific HubSpot workflows:
+    // Example workflow enrollment code (requires workflow IDs from HubSpot):
+    /*
+    const workflowId = getWorkflowIdByPriority(leadPriority);
+    await hubspotClient.automation.workflows.enrollmentsApi.enrollContact(
+      workflowId,
+      contactId
+    );
+    */
+
+    // For now, we'll add a follow-up task instead as a demonstration
+    await createFollowUpTask(contactId, leadScore, recommendedService);
+
+  } catch (error) {
+    console.error('Error enrolling in follow-up workflow:', error.message);
+  }
+}
+
+// Create a follow-up task in HubSpot based on lead priority
+async function createFollowUpTask(contactId, leadScore, recommendedService) {
+  if (!hubspotClient) return;
+
+  try {
+    const leadPriority = getLeadPriority(leadScore);
+    let dueDate = new Date();
+    let taskPriority = 'MEDIUM';
+
+    // Set task priority and due date based on lead score
+    if (leadScore >= 80) {
+      // Hot lead - follow up within 1 hour
+      dueDate.setHours(dueDate.getHours() + 1);
+      taskPriority = 'HIGH';
+    } else if (leadScore >= 60) {
+      // Warm lead - follow up same day
+      dueDate.setHours(dueDate.getHours() + 4);
+      taskPriority = 'MEDIUM';
+    } else if (leadScore >= 40) {
+      // Qualified lead - follow up within 24 hours
+      dueDate.setDate(dueDate.getDate() + 1);
+      taskPriority = 'MEDIUM';
+    } else {
+      // Cold lead - follow up within 3 days
+      dueDate.setDate(dueDate.getDate() + 3);
+      taskPriority = 'LOW';
+    }
+
+    const taskProperties = {
+      hs_timestamp: Date.now(),
+      hs_task_body: `🤖 AI-Qualified Lead - ${leadPriority}
+
+📊 Lead Intelligence:
+• Lead Score: ${leadScore}/100
+• Priority: ${leadPriority}
+${recommendedService ? `• Recommended Service: ${recommendedService}` : ''}
+
+🎯 Next Steps:
+1. Review AI conversation summary in contact notes
+2. Send personalized follow-up email${recommendedService ? ` about ${recommendedService}` : ''}
+3. Offer free consultation to discuss their specific needs
+
+💡 This lead was automatically qualified by LeniLani AI based on conversation analysis.`,
+      hs_task_subject: `[${leadPriority}] Follow up with AI-qualified lead${recommendedService ? ` - ${recommendedService}` : ''}`,
+      hs_task_status: 'NOT_STARTED',
+      hs_task_priority: taskPriority,
+      hs_task_due_date: dueDate.getTime()
+    };
+
+    const associations = [{
+      to: { id: contactId },
+      types: [{
+        associationCategory: 'HUBSPOT_DEFINED',
+        associationTypeId: 204 // Contact to Task association
+      }]
+    }];
+
+    await hubspotClient.crm.objects.tasks.basicApi.create({
+      properties: taskProperties,
+      associations
+    });
+
+    console.log(`✅ Follow-up task created for contact ${contactId} - Priority: ${taskPriority}, Due: ${dueDate.toLocaleString()}`);
+  } catch (error) {
+    console.error('Error creating follow-up task:', error.message);
   }
 }
 
@@ -682,6 +806,211 @@ function detectEscalation(message) {
 
   const lowerMessage = message.toLowerCase();
   return escalationPhrases.some(phrase => lowerMessage.includes(phrase));
+}
+
+// 🤖 PHASE 3 - Demo Request Feature: Detect if user wants a demo
+function detectDemoRequest(message) {
+  const lowerMessage = message.toLowerCase();
+
+  const demoKeywords = [
+    'show me', 'demo', 'demonstration', 'example', 'see it in action',
+    'walk me through', 'show me how', 'can you show', 'give me an example',
+    'what does it look like', 'show me what', 'i want to see'
+  ];
+
+  const hasDemoKeyword = demoKeywords.some(keyword => lowerMessage.includes(keyword));
+
+  if (!hasDemoKeyword) return null;
+
+  // Determine which service they want to see
+  const servicePatterns = {
+    'AI Chatbot': ['chatbot', 'bot', 'customer support', 'automated responses', 'ai assistant'],
+    'Business Intelligence': ['dashboard', 'bi', 'business intelligence', 'reporting', 'analytics', 'data visualization'],
+    'System Integration': ['integration', 'connect systems', 'api', 'automation', 'workflow'],
+    'Fractional CTO': ['cto', 'technology strategy', 'tech leadership', 'roadmap'],
+    'Marketing Automation': ['marketing', 'hubspot', 'email campaigns', 'lead nurturing', 'crm']
+  };
+
+  for (const [service, keywords] of Object.entries(servicePatterns)) {
+    if (keywords.some(keyword => lowerMessage.includes(keyword))) {
+      return service;
+    }
+  }
+
+  // If they say "demo" but don't specify service, return 'generic'
+  return 'generic';
+}
+
+// 🤖 PHASE 3 - Hawaiian Pidgin Mode: Detect if user wants pidgin mode
+function detectPidginRequest(message) {
+  const lowerMessage = message.toLowerCase();
+
+  const pidginKeywords = [
+    'talk pidgin', 'speak pidgin', 'pidgin mode', 'talk local', 'speak local',
+    'talk story', 'talk like local', 'speak hawaiian pidgin', 'use pidgin',
+    'can talk pidgin'
+  ];
+
+  const hasPidginKeyword = pidginKeywords.some(keyword => lowerMessage.includes(keyword));
+
+  // Check for exit pidgin mode
+  if (lowerMessage.includes('exit pidgin') || lowerMessage.includes('stop pidgin') ||
+      lowerMessage.includes('professional mode') || lowerMessage.includes('standard mode')) {
+    return 'exit';
+  }
+
+  return hasPidginKeyword ? 'enter' : null;
+}
+
+// Get Hawaiian Pidgin mode instructions
+function getPidginModeInstructions() {
+  return `[HAWAIIAN PIDGIN MODE ACTIVATED]
+
+You are now speaking in Hawaiian Pidgin English (Hawaii Creole English). Use authentic local expressions while maintaining professionalism.
+
+PIDGIN CHARACTERISTICS TO USE:
+• "Eh, howzit!" or "Shoots!" for greetings
+• "Da kine" for "the thing" or "you know what I mean"
+• "Broke da mouth" for delicious
+• "Choke" for "a lot of"
+• "Grindz" for food
+• "Stay" instead of continuous "is" (e.g., "We stay helping" not "We are helping")
+• "Fo real kine" for emphasis or "seriously"
+• Drop "to be" verbs sometimes (e.g., "Das good" instead of "That's good")
+• Use "bumbye" for "later" or "eventually"
+• "Lolo" for crazy/silly
+• "Ono" for delicious
+• "Talk story" for chatting/conversation
+
+KEEP IT PROFESSIONAL:
+• Still provide expert technology advice
+• Use pidgin naturally, not every sentence
+• Blend pidgin with standard English
+• Maintain the same helpful, consultative approach
+• Don't overdo it - subtle and authentic
+
+EXAMPLE PIDGIN RESPONSES:
+Standard: "I'd be happy to help you with that."
+Pidgin: "Eh, shoots! I can help you wit dat, no problem."
+
+Standard: "That's a great question about our services."
+Pidgin: "Fo real kine, das one good question. Lemme break um down for you."
+
+Standard: "We have a lot of experience with that."
+Pidgin: "We get choke experience wit dat kine stuff, brah."
+
+The user can exit pidgin mode by saying "exit pidgin mode" or "professional mode".`;
+}
+
+// Get demo content for specific service
+function getDemoContent(service) {
+  const demoContent = {
+    'AI Chatbot': `[DEMO MODE: AI Chatbot]
+
+I'm now showing you exactly what an AI chatbot built by LeniLani can do. Notice how I:
+• Understand context and remember our conversation
+• Qualify leads automatically (I've been scoring this conversation)
+• Capture contact information naturally
+• Calculate ROI in real-time based on your specific situation
+• Recommend the right services for your needs
+
+This chatbot you're talking to right now? It's a real example of our work. Built with Claude Sonnet 4.5, LangChain, and integrated with HubSpot for seamless lead management.
+
+What specific chatbot capability would you like to explore further?`,
+
+    'Business Intelligence': `[DEMO MODE: Business Intelligence]
+
+Let me show you what a LeniLani BI dashboard looks like. Imagine this scenario:
+
+📊 LIVE DASHBOARD EXAMPLE
+━━━━━━━━━━━━━━━━━━━━
+Revenue This Month: $127,450 (↑ 23% vs last month)
+Top Product: Premium Package (45 sales)
+Conversion Rate: 3.2% (↑ 0.8% improvement)
+Customer Lifetime Value: $4,250
+
+🎯 AI INSIGHTS:
+• Your email campaigns on Tuesdays convert 40% better
+• Customers from referrals have 2.3x higher LTV
+• Peak purchasing hours: 10am-12pm HST
+
+Instead of spending 12 hours/week in spreadsheets, you'd get this in real-time, updated automatically from all your systems.
+
+What business metrics are most important for you to track?`,
+
+    'System Integration': `[DEMO MODE: System Integration]
+
+Here's a real integration workflow we'd build for you:
+
+🔄 AUTOMATED WORKFLOW EXAMPLE
+━━━━━━━━━━━━━━━━━━━━━━━━
+1. Customer fills form on your website
+   ↓
+2. Auto-creates contact in HubSpot CRM
+   ↓
+3. Sends welcome email sequence
+   ↓
+4. Updates your accounting system (QuickBooks/Xero)
+   ↓
+5. Creates task for sales team
+   ↓
+6. Logs interaction in Slack channel
+
+All of this happens automatically - zero manual data entry. The systems that used to be isolated now work together seamlessly.
+
+Which systems do you currently use that don't talk to each other?`,
+
+    'Fractional CTO': `[DEMO MODE: Fractional CTO Service]
+
+Let me show you what strategic technology guidance looks like:
+
+🎯 EXAMPLE CTO SESSION TOPICS
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+SCENARIO: You're considering building custom software vs. buying SaaS
+
+MY ANALYSIS:
+• Build Cost: ~$50k initial + $2k/month maintenance
+• SaaS Cost: $500/month = $6k/year
+• Break-even: 8.3 years
+
+RECOMMENDATION: Start with SaaS, custom build only if:
+1. You hit scaling limits (>10k users)
+2. Need unique features that provide competitive advantage
+3. Integration costs exceed build costs
+
+I'd also review your tech stack, security posture, and create a 12-month technology roadmap aligned with your business goals.
+
+What's your biggest technology decision right now?`,
+
+    'Marketing Automation': `[DEMO MODE: Marketing Automation]
+
+Let me demonstrate an automated marketing workflow:
+
+📧 LEAD NURTURING SEQUENCE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+DAY 1: Someone downloads your guide
+→ Auto-tagged in HubSpot as "Content Interested"
+→ Immediate email: "Here's your guide + 3 bonus resources"
+
+DAY 3: If they opened email but didn't visit site
+→ Follow-up: "Quick question about [their industry]"
+
+DAY 7: If they visited pricing page
+→ HIGH PRIORITY lead score
+→ Auto-assign to sales rep
+→ Email: "Want to see a personalized demo?"
+
+DAY 14: If still not converted
+→ Case study email with ROI calculator
+
+Instead of manually tracking and emailing leads, the system nurtures them automatically until they're ready to buy.
+
+What's your current biggest marketing bottleneck?`
+  };
+
+  return demoContent[service] || `I can show you demos of our AI Chatbot, Business Intelligence, System Integration, Fractional CTO, or Marketing Automation services. Which would you like to see?`;
 }
 
 // ROI Calculator: Determine realistic hourly rate based on work type
@@ -917,12 +1246,28 @@ function generateQuickReplies(context, botResponse) {
   // Detect conversation topic from all messages
   const allMessages = context.messages.map(m => m.content).join(' ').toLowerCase();
 
+  // 🤖 PHASE 3 - Demo Mode: Show demo-specific quick replies
+  if (context.demoMode) {
+    return [
+      "Tell me more about this service",
+      "What's the pricing?",
+      "Show me another demo",
+      "Exit demo mode"
+    ];
+  }
+
+  // 🤖 PHASE 3 - Hawaiian Pidgin Mode: Include pidgin toggle in suggestions
+  const pidginToggle = context.pidginMode
+    ? "Exit pidgin mode"
+    : "Talk pidgin";
+
   // Check for escalation
   if (context.escalationRequested) {
     return [
       "Email: reno@lenilani.com",
       "Call: (808) 766-1164",
-      "Continue with AI assistant"
+      "Continue with AI assistant",
+      pidginToggle
     ];
   }
 
@@ -1090,6 +1435,62 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// 🤖 PHASE 3 - Conversation Analytics: Get analytics data
+app.get('/api/analytics', (req, res) => {
+  try {
+    // Calculate dynamic metrics
+    const activeConversations = conversationContexts.size;
+    const totalConversations = analyticsData.totalConversations;
+    const averageMessages = totalConversations > 0
+      ? (analyticsData.totalMessages / totalConversations).toFixed(1)
+      : 0;
+
+    // Calculate conversion rate (emails captured / total conversations)
+    const conversionRate = totalConversations > 0
+      ? ((analyticsData.emailsCaptured / totalConversations) * 100).toFixed(1)
+      : 0;
+
+    // Calculate uptime
+    const startTime = new Date(analyticsData.startTime);
+    const uptime = Date.now() - startTime.getTime();
+    const uptimeHours = (uptime / (1000 * 60 * 60)).toFixed(1);
+
+    res.json({
+      overview: {
+        totalConversations: analyticsData.totalConversations,
+        activeConversations,
+        totalMessages: analyticsData.totalMessages,
+        averageMessagesPerConversation: averageMessages,
+        uptime: `${uptimeHours} hours`,
+        startTime: analyticsData.startTime
+      },
+      leadGeneration: {
+        emailsCaptured: analyticsData.emailsCaptured,
+        phonesCaptured: analyticsData.phonesCaptured,
+        conversionRate: `${conversionRate}%`,
+        escalationsRequested: analyticsData.escalationsRequested
+      },
+      leadQuality: {
+        hotLeads: analyticsData.leadScores.hot,
+        warmLeads: analyticsData.leadScores.warm,
+        qualifiedLeads: analyticsData.leadScores.qualified,
+        coldLeads: analyticsData.leadScores.cold
+      },
+      features: {
+        roiCalculationsPerformed: analyticsData.roiCalculations,
+        demosRequested: analyticsData.demosRequested,
+        pidginModeActivations: analyticsData.pidginModeActivations
+      },
+      serviceRecommendations: analyticsData.serviceRecommendations,
+      conversationsByDay: analyticsData.conversationsByDay,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    res.status(500).json({ error: 'Unable to fetch analytics data' });
+  }
+});
+
 // Get meeting availability and booking link
 app.get('/api/meeting-info', async (req, res) => {
   try {
@@ -1182,6 +1583,34 @@ app.get('/chat', (req, res) => {
 // Store conversation contexts for lead capture
 const conversationContexts = new Map();
 
+// 🤖 PHASE 3 - Conversation Analytics: Track chatbot performance metrics
+const analyticsData = {
+  totalConversations: 0,
+  totalMessages: 0,
+  emailsCaptured: 0,
+  phonesCaptured: 0,
+  escalationsRequested: 0,
+  roiCalculations: 0,
+  serviceRecommendations: {
+    'AI Chatbot': 0,
+    'Business Intelligence': 0,
+    'System Integration': 0,
+    'Fractional CTO': 0,
+    'Marketing Automation': 0
+  },
+  leadScores: {
+    hot: 0,    // 80-100
+    warm: 0,   // 60-79
+    qualified: 0, // 40-59
+    cold: 0    // 0-39
+  },
+  demosRequested: 0,
+  pidginModeActivations: 0,
+  averageMessagesPerConversation: 0,
+  conversationsByDay: {},
+  startTime: new Date().toISOString()
+};
+
 // Security: Clean up old sessions to prevent memory leaks
 setInterval(() => {
   const now = Date.now();
@@ -1231,7 +1660,9 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
     // Track conversation context
     const contextId = sessionId || 'default';
-    if (!conversationContexts.has(contextId)) {
+    const isNewConversation = !conversationContexts.has(contextId);
+
+    if (isNewConversation) {
       conversationContexts.set(contextId, {
         messages: [],
         contactInfo: {},
@@ -1239,12 +1670,24 @@ app.post('/chat', chatLimiter, async (req, res) => {
         lastActivity: Date.now(),
         roiData: null,
         recommendedService: null,
-        leadScore: 0
+        leadScore: 0,
+        demoMode: false, // 🤖 PHASE 3 - Demo Request Feature
+        demoService: null, // 🤖 PHASE 3 - Demo Request Feature
+        pidginMode: false // 🤖 PHASE 3 - Hawaiian Pidgin Mode
       });
+
+      // 🤖 PHASE 3 - Analytics: Track new conversation
+      analyticsData.totalConversations++;
+      const today = new Date().toISOString().split('T')[0];
+      analyticsData.conversationsByDay[today] = (analyticsData.conversationsByDay[today] || 0) + 1;
     }
+
     const context = conversationContexts.get(contextId);
     context.lastActivity = Date.now(); // Update activity timestamp
     context.messages.push({ role: 'user', content: message });
+
+    // 🤖 PHASE 3 - Analytics: Track total messages
+    analyticsData.totalMessages++;
 
     // 💰 FEATURE: ROI Calculator - Extract time/cost data from message
     const roiData = extractROIData(message);
@@ -1257,22 +1700,86 @@ app.post('/chat', chatLimiter, async (req, res) => {
           calculatedAt: new Date().toISOString()
         };
         console.log(`💰 ROI calculated: ${roi.potentialSavings > 0 ? `$${roi.potentialSavings.toLocaleString()} annual savings, ${roi.roi}% ROI` : 'No savings potential'}`);
+
+        // 🤖 PHASE 3 - Analytics: Track ROI calculation
+        if (!context.roiCalculated) {
+          analyticsData.roiCalculations++;
+          context.roiCalculated = true;
+        }
       }
     }
 
     // 🎯 FEATURE: Service Recommender - Match pain points to services
     const serviceRecommendation = recommendService(message);
     if (serviceRecommendation) {
+      const previousService = context.recommendedService?.service;
       context.recommendedService = serviceRecommendation;
       console.log(`🎯 Service recommended: ${serviceRecommendation.service} (confidence: ${serviceRecommendation.confidence})`);
+
+      // 🤖 PHASE 3 - Analytics: Track service recommendation (only count once per service per conversation)
+      if (previousService !== serviceRecommendation.service) {
+        analyticsData.serviceRecommendations[serviceRecommendation.service]++;
+      }
     }
 
     // 📊 FEATURE: Lead Scoring - Calculate lead quality score
     const leadScore = calculateLeadScore(context, message);
+    const previousLeadScore = context.leadScore;
     if (leadScore > context.leadScore) {
       context.leadScore = leadScore;
       const priority = getLeadPriority(leadScore);
       console.log(`📊 Lead score updated: ${leadScore}/100 - ${priority}`);
+
+      // 🤖 PHASE 3 - Analytics: Update lead score distribution
+      // Remove from previous category
+      if (previousLeadScore >= 80) analyticsData.leadScores.hot = Math.max(0, analyticsData.leadScores.hot - 1);
+      else if (previousLeadScore >= 60) analyticsData.leadScores.warm = Math.max(0, analyticsData.leadScores.warm - 1);
+      else if (previousLeadScore >= 40) analyticsData.leadScores.qualified = Math.max(0, analyticsData.leadScores.qualified - 1);
+      else if (previousLeadScore > 0) analyticsData.leadScores.cold = Math.max(0, analyticsData.leadScores.cold - 1);
+
+      // Add to new category
+      if (leadScore >= 80) analyticsData.leadScores.hot++;
+      else if (leadScore >= 60) analyticsData.leadScores.warm++;
+      else if (leadScore >= 40) analyticsData.leadScores.qualified++;
+      else analyticsData.leadScores.cold++;
+    }
+
+    // 🤖 PHASE 3 - Demo Request Feature: Check for demo request
+    const demoRequest = detectDemoRequest(message);
+    if (demoRequest) {
+      if (message.toLowerCase().includes('exit demo')) {
+        // Exit demo mode
+        context.demoMode = false;
+        context.demoService = null;
+        console.log('🎭 Exited demo mode');
+      } else {
+        // Enter demo mode
+        context.demoMode = true;
+        context.demoService = demoRequest;
+        console.log(`🎭 Demo mode activated: ${demoRequest}`);
+
+        // 🤖 PHASE 3 - Analytics: Track demo request
+        if (!context.demoRequested) {
+          analyticsData.demosRequested++;
+          context.demoRequested = true;
+        }
+      }
+    }
+
+    // 🤖 PHASE 3 - Hawaiian Pidgin Mode: Check for pidgin mode request
+    const pidginRequest = detectPidginRequest(message);
+    if (pidginRequest === 'enter') {
+      context.pidginMode = true;
+      console.log('🌺 Hawaiian Pidgin mode activated');
+
+      // 🤖 PHASE 3 - Analytics: Track pidgin mode activation
+      if (!context.pidginActivated) {
+        analyticsData.pidginModeActivations++;
+        context.pidginActivated = true;
+      }
+    } else if (pidginRequest === 'exit') {
+      context.pidginMode = false;
+      console.log('🌺 Exited Hawaiian Pidgin mode');
     }
 
     // Check for escalation request
@@ -1280,6 +1787,9 @@ app.post('/chat', chatLimiter, async (req, res) => {
     if (escalationDetected && !context.escalationRequested) {
       context.escalationRequested = true;
       console.log('🚨 Escalation requested by user');
+
+      // 🤖 PHASE 3 - Analytics: Track escalation request
+      analyticsData.escalationsRequested++;
 
       // Create high-priority note in HubSpot if contact exists
       if (context.contactId && hubspotClient) {
@@ -1296,10 +1806,16 @@ app.post('/chat', chatLimiter, async (req, res) => {
     if (emailMatch && !context.contactInfo.email) {
       context.contactInfo.email = emailMatch[0];
       console.log(`📧 Email detected: ${emailMatch[0]}`);
+
+      // 🤖 PHASE 3 - Analytics: Track email capture
+      analyticsData.emailsCaptured++;
     }
     if (phoneMatch && !context.contactInfo.phone) {
       context.contactInfo.phone = phoneMatch[0];
       console.log(`📞 Phone detected: ${phoneMatch[0]}`);
+
+      // 🤖 PHASE 3 - Analytics: Track phone capture
+      analyticsData.phonesCaptured++;
     }
 
     // Initialize chain if needed
@@ -1307,6 +1823,18 @@ app.post('/chat', chatLimiter, async (req, res) => {
 
     // 💰 Inject ROI data and service recommendations into Claude's context
     let enhancedMessage = message;
+
+    // 🤖 PHASE 3 - Demo Mode: Inject demo content if in demo mode
+    if (context.demoMode && context.demoService) {
+      const demoContent = getDemoContent(context.demoService);
+      enhancedMessage += `\n\n[DEMO MODE ACTIVE - Present this demo content to the user:\n\n${demoContent}\n\nYou are showcasing the ${context.demoService} service. Keep the conversation focused on this demo. The user can exit demo mode by saying "exit demo mode".]`;
+    }
+
+    // 🤖 PHASE 3 - Hawaiian Pidgin Mode: Inject pidgin instructions if active
+    if (context.pidginMode) {
+      const pidginInstructions = getPidginModeInstructions();
+      enhancedMessage += `\n\n${pidginInstructions}`;
+    }
 
     // Add ROI calculation context if available
     if (context.roiData && context.roiData.potentialSavings > 0) {
@@ -1353,11 +1881,16 @@ IMPORTANT: Mention the hourly rate and explain it's based on Hawaii market data 
         })
         .join('\n\n');
 
+      // 🤖 PHASE 3 - Automated Follow-Up: Include lead intelligence data
       const leadResult = await createOrUpdateContact({
         email: context.contactInfo.email,
         phone: context.contactInfo.phone || '',
         message: message,
-        conversationSummary: conversationSummary
+        conversationSummary: conversationSummary,
+        leadScore: context.leadScore,
+        leadPriority: getLeadPriority(context.leadScore),
+        recommendedService: context.recommendedService?.service || null,
+        roiData: context.roiData
       });
 
       if (leadResult.success) {
