@@ -1,0 +1,185 @@
+{
+  "emailTemplates": {
+    "welcomeEmail": {
+      "name": "AI Chatbot Lead - Immediate Welcome",
+      "subject": "{{contact.firstname}}, let's turn those hours into revenue 🚀",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>Thanks for chatting with our AI assistant! I'm Reno, and I noticed you're looking for ways to {{#if contact.ai_work_type}}automate {{contact.ai_work_type}}{{else}}save time and grow your business{{/if}}.</p>\n\n      <p><strong>Here's what caught my attention:</strong></p>\n      <ul>\n        {{#if contact.ai_hours_per_week}}<li>You're spending <strong>{{contact.ai_hours_per_week}} hours/week</strong> on manual work</li>{{/if}}\n        {{#if contact.ai_annual_savings}}<li>Potential savings: <strong>${{contact.ai_annual_savings}}/year</strong></li>{{/if}}\n        {{#if contact.ai_roi_percentage}}<li>Estimated ROI: <strong>{{contact.ai_roi_percentage}}%</strong></li>{{/if}}\n      </ul>\n\n      <p>Most Hawaii businesses we work with see results in the first 30 days:</p>\n      <ul>\n        <li>✅ 10-20 hours saved per week</li>\n        <li>✅ 35% boost in operational efficiency</li>\n        <li>✅ 42% average first-year revenue growth</li>\n      </ul>\n\n      <p><strong>Ready to see what this looks like for your business?</strong></p>\n\n      <p><a href=\"https://meetings-na2.hubspot.com/reno\" style=\"background: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;\">Book Your Free 30-Min Strategy Call</a></p>\n\n      <p>No sales pressure. Just real talk about what's possible for your business.</p>\n\n      <p>E komo mai (welcome),<br>\n      Reno Provine<br>\n      Founder, LeniLani Consulting<br>\n      📞 (808) 766-1164</p>\n\n      <p style=\"font-size: 12px; color: #666;\">P.S. — We're kama'aina owned and work exclusively with Hawaii small businesses. Enterprise solutions at island-appropriate pricing.</p>\n    "
+    },
+    "highPriorityAlert": {
+      "name": "AI Chatbot - High Priority Lead Fast Track",
+      "subject": "{{contact.firstname}}, I'm clearing my calendar for you",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>I just reviewed your conversation with our AI assistant, and I wanted to reach out personally.</p>\n\n      <p>Based on what you shared{{#if contact.ai_work_type}} about {{contact.ai_work_type}}{{/if}}, I think we can make a <em>significant</em> impact on your business — fast.</p>\n\n      {{#if contact.ai_annual_savings}}\n      <p><strong>Here's the opportunity I see:</strong><br>\n      You mentioned challenges that are costing you roughly <strong>${{contact.ai_annual_savings}}/year</strong>. Most of our clients eliminate 60-80% of that cost within 90 days.</p>\n      {{/if}}\n\n      <p><strong>What I'm proposing:</strong></p>\n\n      <p>I'd like to personally walk you through exactly how we'd solve this for your business. Not generic solutions — a specific plan built around your needs.</p>\n\n      <p>I'm holding three slots this week specifically for high-potential opportunities like yours:</p>\n\n      <p><a href=\"https://meetings-na2.hubspot.com/reno\" style=\"background: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;\">Grab One of 3 Priority Slots →</a></p>\n\n      <p><strong>On this call, you'll get:</strong></p>\n      <ul>\n        <li>📊 Custom ROI analysis for your specific situation</li>\n        <li>🗺️ 90-day implementation roadmap</li>\n        <li>💰 Exact pricing (no surprises, ever)</li>\n        <li>⚡ Quick wins you can implement this week</li>\n      </ul>\n\n      <p>Most businesses we work with start seeing results within the first 30 days. One client saved 23 hours/week in their first month alone.</p>\n\n      <p>Shall we explore what's possible?</p>\n\n      <p>With aloha,<br>\n      Reno Provine<br>\n      Founder & Chief Technology Officer<br>\n      LeniLani Consulting<br>\n      📞 (808) 766-1164<br>\n      📧 reno@lenilani.com</p>\n\n      <p style=\"font-size: 12px; color: #666; border-left: 3px solid #0ea5e9; padding-left: 12px; margin-top: 24px;\">\n      <strong>Why LeniLani?</strong><br>\n      ✓ Former AWS engineer, local Hawaii roots<br>\n      ✓ 35% avg efficiency gains, 42% avg revenue growth<br>\n      ✓ Month-to-month (no long contracts)<br>\n      ✓ Starting at $1,500/month vs. $12k+ for full-time CTO\n      </p>\n    "
+    },
+    "aiChatbotNurture": {
+      "name": "AI Chatbot Service - Value Nurture",
+      "subject": "How {{company.name}} can answer 80% of inquiries automatically",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>Following up on your interest in AI chatbot solutions...</p>\n\n      <p><strong>Quick question:</strong> What if 80% of your customer inquiries were answered instantly, 24/7, without hiring anyone?</p>\n\n      <p>That's exactly what we built for a Hawaii tourism company last quarter:</p>\n\n      <div style=\"background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 16px; margin: 20px 0;\">\n        <p style=\"margin: 0;\"><strong>Real Hawaii Business Results:</strong></p>\n        <ul style=\"margin: 10px 0 0 0;\">\n          <li>Handles 500+ inquiries/day automatically</li>\n          <li>Team saved 80 hours/week</li>\n          <li>Response time: 24 hours → 30 seconds</li>\n          <li>Customer satisfaction up 47%</li>\n        </ul>\n      </div>\n\n      <p><strong>Your AI chatbot would:</strong></p>\n      <ul>\n        <li>🤖 Answer FAQs instantly (trained on YOUR business)</li>\n        <li>📅 Book appointments automatically</li>\n        <li>🎯 Qualify leads while you sleep</li>\n        <li>📊 Push hot leads directly to HubSpot</li>\n        <li>🌴 Speak with aloha (culturally aware for Hawaii market)</li>\n      </ul>\n\n      <p><strong>Investment:</strong> Starting at $1,500/month<br>\n      <strong>ROI Timeline:</strong> Most clients break even in 45-60 days</p>\n\n      <p>Want to see what this looks like for {{company.name}}?</p>\n\n      <p><a href=\"https://meetings-na2.hubspot.com/reno\" style=\"background: #0ea5e9; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;\">Book a Free Demo Call</a></p>\n\n      <p>I'll show you:</p>\n      <ol>\n        <li>Live demo of an AI chatbot in action</li>\n        <li>Exact setup process (takes 2-3 weeks)</li>\n        <li>Custom ROI calculator for your business</li>\n      </ol>\n\n      <p>Mahalo,<br>\n      Reno<br>\n      📞 (808) 766-1164</p>\n\n      <p style=\"font-size: 12px; color: #666;\">P.S. — Check out our own AI chatbot at <a href=\"https://ai-bot-special.lenilani.com\">ai-bot-special.lenilani.com</a>. Yes, it's the one you chatted with. Pretty cool, right? 😉</p>\n    "
+    },
+    "businessIntelligenceNurture": {
+      "name": "Business Intelligence - Value Nurture",
+      "subject": "Stop drowning in spreadsheets, {{contact.firstname}}",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>I noticed you're interested in turning your data into actual insights.</p>\n\n      <p>Let me guess: You have data scattered across multiple systems, you're manually pulling reports in Excel, and by the time you see the numbers, they're already outdated?</p>\n\n      <p>You're not alone. 73% of Hawaii small businesses we talk to are sitting on goldmines of data but have no way to actually use it.</p>\n\n      <div style=\"background: #f0fdf4; border-left: 4px solid #10b981; padding: 16px; margin: 20px 0;\">\n        <p style=\"margin: 0;\"><strong>What changes with proper BI:</strong></p>\n        <ul style=\"margin: 10px 0 0 0;\">\n          <li>📊 Real-time dashboards (not week-old Excel files)</li>\n          <li>🎯 Spot trends before your competitors do</li>\n          <li>⚡ Make decisions in minutes, not days</li>\n          <li>💰 Average client finds $50k+ in hidden revenue</li>\n        </ul>\n      </div>\n\n      <p><strong>Here's what we build:</strong></p>\n      <ul>\n        <li>Automated data pipelines (connects all your systems)</li>\n        <li>Smart dashboards that update in real-time</li>\n        <li>Custom alerts when numbers move</li>\n        <li>Mobile access (check your business from the beach)</li>\n      </ul>\n\n      <p><strong>Recent Hawaii client example:</strong><br>\n      Local retail chain was spending 15 hours/week manually compiling sales reports. We automated everything. Now they get real-time insights, spotted a trending product category, and increased revenue by 28% in that category alone.</p>\n\n      <p><strong>Timeline:</strong> Most implementations done in 4-6 weeks<br>\n      <strong>Investment:</strong> Starting at $1,500/month<br>\n      <strong>ROI:</strong> Average payback in 2-3 months</p>\n\n      <p><a href=\"https://meetings-na2.hubspot.com/reno\" style=\"background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;\">Show Me What's Possible</a></p>\n\n      <p>On the call, I'll show you:</p>\n      <ol>\n        <li>Live demo of real Hawaii business dashboards</li>\n        <li>What your dashboard could look like</li>\n        <li>Exact data sources we'd connect</li>\n        <li>Quick wins you can implement immediately</li>\n      </ol>\n\n      <p>No obligation. Just real insights into what's possible.</p>\n\n      <p>E komo mai,<br>\n      Reno Provine<br>\n      📞 (808) 766-1164</p>\n    "
+    },
+    "systemIntegrationNurture": {
+      "name": "System Integration - Value Nurture",
+      "subject": "Your systems should talk to each other, {{contact.firstname}}",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>You mentioned needing help with system integration and automation...</p>\n\n      <p><strong>Let me paint a picture:</strong></p>\n\n      <p>Right now, you're probably copying data between systems, manually updating records, and wondering why technology is making your life <em>harder</em> instead of easier.</p>\n\n      <p>Sound familiar?</p>\n\n      <div style=\"background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;\">\n        <p style=\"margin: 0;\"><strong>What integration fixes:</strong></p>\n        <ul style=\"margin: 10px 0 0 0;\">\n          <li>❌ No more manual data entry between systems</li>\n          <li>❌ No more \"which system has the right info?\"</li>\n          <li>❌ No more paying for tools you can't connect</li>\n          <li>✅ Everything syncs automatically, 24/7</li>\n        </ul>\n      </div>\n\n      <p><strong>Common integrations we build:</strong></p>\n      <ul>\n        <li>🔗 QuickBooks ↔ HubSpot (sales to accounting, automatic)</li>\n        <li>🔗 Shopify ↔ Inventory System (real-time stock updates)</li>\n        <li>🔗 Email ↔ CRM (never lose a lead again)</li>\n        <li>🔗 Website Forms ↔ Multiple Systems (one form, multiple destinations)</li>\n      </ul>\n\n      <p><strong>Real Hawaii example:</strong><br>\n      A local service business was manually entering customer data into 3 different systems. 4 hours every day. We integrated everything. Now it happens automatically. That's 20 hours/week back — worth about $40k/year in freed-up time.</p>\n\n      <p><strong>Your situation{{#if contact.ai_hours_per_week}} (spending {{contact.ai_hours_per_week}} hours/week on manual work){{/if}}:</strong></p>\n\n      <p>We can likely eliminate 70-90% of that manual work. Most integrations pay for themselves in the first 60 days.</p>\n\n      <p><a href=\"https://meetings-na2.hubspot.com/reno\" style=\"background: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;\">Let's Map Your Integration Strategy</a></p>\n\n      <p><strong>On this call:</strong></p>\n      <ol>\n        <li>Audit your current systems (what you have)</li>\n        <li>Map the ideal flow (what you need)</li>\n        <li>Show you exactly how we'd connect everything</li>\n        <li>Give you 2-3 quick wins you can do yourself</li>\n      </ol>\n\n      <p>30 minutes. Zero pressure. Maximum value.</p>\n\n      <p>Mahalo,<br>\n      Reno<br>\n      📞 (808) 766-1164</p>\n\n      <p style=\"font-size: 12px; color: #666;\">P.S. — Month-to-month engagements starting at $1,500/month. No long-term contracts. Ever.</p>\n    "
+    },
+    "fractionalCTONurture": {
+      "name": "Fractional CTO - Value Nurture",
+      "subject": "A CTO for $1,500/month? Yes, really.",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>I saw you're exploring Fractional CTO services for {{company.name}}.</p>\n\n      <p>Smart move. Here's why:</p>\n\n      <p>A full-time CTO in Hawaii costs $12,000-$18,000/month (salary + benefits). Plus, you're probably not big enough to keep them busy full-time anyway.</p>\n\n      <p><strong>That's where fractional comes in.</strong></p>\n\n      <div style=\"background: #f5f3ff; border-left: 4px solid #8b5cf6; padding: 16px; margin: 20px 0;\">\n        <p style=\"margin: 0;\"><strong>What you get with LeniLani Fractional CTO:</strong></p>\n        <ul style=\"margin: 10px 0 0 0;\">\n          <li>🎯 Technology strategy & roadmap</li>\n          <li>🛡️ Vendor management (stop getting ripped off)</li>\n          <li>📊 Make vs. buy decisions</li>\n          <li>🚀 Implementation oversight</li>\n          <li>💰 Tech budget optimization</li>\n          <li>👥 Team guidance & hiring support</li>\n        </ul>\n      </div>\n\n      <p><strong>Real Hawaii client story:</strong></p>\n\n      <p>Local professional services firm was paying $8,500/month for a marketing automation platform they barely used. I reviewed their tech stack, found 3 redundant tools, and saved them $96,000/year. My fractional CTO service paid for itself in the first week.</p>\n\n      <p><strong>What makes this different from consulting:</strong></p>\n\n      <p>I don't just give you a report and disappear. I'm your ongoing strategic technology partner. Monthly strategy sessions, unlimited Slack/email access, vendor negotiations, emergency support.</p>\n\n      <p>You get enterprise-level CTO thinking without the enterprise-level cost.</p>\n\n      <p><strong>Investment:</strong> Starting at $1,500/month<br>\n      <strong>Commitment:</strong> Month-to-month (cancel anytime)<br>\n      <strong>ROI:</strong> Avg client saves 4-6x their monthly investment</p>\n\n      <p><a href=\"https://meetings-na2.hubspot.com/reno\" style=\"background: #8b5cf6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;\">Book Your Strategy Session</a></p>\n\n      <p><strong>On this call, we'll:</strong></p>\n      <ol>\n        <li>Review your current tech situation</li>\n        <li>Identify 3-5 immediate opportunities</li>\n        <li>Map a 90-day technology roadmap</li>\n        <li>Show you where you're likely overspending</li>\n      </ol>\n\n      <p>Most businesses walk away with at least one actionable insight worth thousands. Even if you don't hire me.</p>\n\n      <p>With aloha,<br>\n      Reno Provine<br>\n      Former AWS Engineer | Local Hawaii Roots<br>\n      📞 (808) 766-1164<br>\n      📧 reno@lenilani.com</p>\n\n      <p style=\"font-size: 12px; color: #666; border-left: 3px solid #8b5cf6; padding-left: 12px;\">\n      <strong>About me:</strong> 15+ years in enterprise tech, worked with AWS, now helping Hawaii small businesses get enterprise capabilities at island prices. Kama'aina owned, ohana operated.\n      </p>\n    "
+    },
+    "reengagementEmail": {
+      "name": "AI Chatbot Lead - Re-engagement",
+      "subject": "{{contact.firstname}}, did I lose you?",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>I haven't heard back from you since our AI assistant chat, so I wanted to check in.</p>\n\n      <p><strong>Three possibilities:</strong></p>\n\n      <ol>\n        <li><strong>Bad timing.</strong> You're interested but swamped. (Totally get it.)</li>\n        <li><strong>Wrong fit.</strong> What we offer doesn't match what you need. (No worries, happens.)</li>\n        <li><strong>Need more info.</strong> You have questions I haven't answered yet. (Let's fix that.)</li>\n      </ol>\n\n      <p>If it's #1 or #3, I'd love to reconnect when it makes sense.</p>\n\n      <p>If it's #2, no hard feelings — I'd actually appreciate knowing so I'm not bugging you.</p>\n\n      <p><strong>Quick question:</strong> What's your biggest technology challenge right now?</p>\n\n      <p>Just hit reply with one sentence. I promise to give you an honest answer about whether we can help or not.</p>\n\n      <p>No sales pitch. No pressure. Just real talk.</p>\n\n      <p>Mahalo,<br>\n      Reno<br>\n      📞 (808) 766-1164</p>\n\n      <p style=\"font-size: 11px; color: #999; margin-top: 30px;\">P.S. — If you're not interested, <a href=\"#\">click here to opt out</a> and I won't bother you again. I respect your inbox.</p>\n    "
+    },
+    "meetingConfirmation": {
+      "name": "Meeting Booked - Confirmation & Prep",
+      "subject": "Your strategy call is confirmed — here's what to prep",
+      "htmlBody": "\n      <p>Aloha {{contact.firstname}},</p>\n\n      <p>🎉 Your strategy call is confirmed! Looking forward to connecting.</p>\n\n      <p><strong>Meeting Details:</strong><br>\n      📅 [Meeting Date/Time will be inserted by HubSpot]<br>\n      ⏱️ 30 minutes<br>\n      💻 Zoom link sent separately</p>\n\n      <div style=\"background: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 16px; margin: 20px 0;\">\n        <p style=\"margin: 0;\"><strong>To make this super valuable for you, come prepared with:</strong></p>\n        <ul style=\"margin: 10px 0 0 0;\">\n          <li>Your biggest technology frustration right now</li>\n          <li>What success would look like 90 days from now</li>\n          <li>Rough idea of your monthly tech budget</li>\n          <li>Any systems/tools you're currently using</li>\n        </ul>\n      </div>\n\n      <p><strong>What to expect on the call:</strong></p>\n      <ul>\n        <li>✅ Quick business overview (5 min)</li>\n        <li>✅ Deep dive on your specific challenges (15 min)</li>\n        <li>✅ Solutions roadmap & rough pricing (8 min)</li>\n        <li>✅ Q&A and next steps (2 min)</li>\n      </ul>\n\n      <p><strong>I'll show up with:</strong></p>\n      <ul>\n        <li>Specific ideas based on your industry</li>\n        <li>ROI calculations for your situation</li>\n        <li>Examples from similar Hawaii businesses</li>\n        <li>Honest assessment of what we can (and can't) do for you</li>\n      </ul>\n\n      <p><strong>One request:</strong> If something comes up and you need to reschedule, just <a href=\"[MEETING_LINK]\">click here</a>. No explanation needed. I just appreciate the heads up.</p>\n\n      <p>See you soon!</p>\n\n      <p>E komo mai,<br>\n      Reno Provine<br>\n      📞 (808) 766-1164</p>\n\n      <p style=\"font-size: 12px; color: #666; background: #fef3c7; padding: 12px; margin-top: 20px;\">\n      <strong>⚡ Quick Win:</strong> Before our call, <a href=\"https://www.lenilani.com\">check out our website</a> to see recent client results and case studies. It'll give you ideas about what's possible for your business.\n      </p>\n    "
+    }
+  },
+  "workflows": [
+    {
+      "name": "🚀 Workflow 1: Immediate Welcome & Qualification",
+      "trigger": "Contact created with source = \"LeniLani AI Chatbot\"",
+      "actions": [
+        "Wait 2 minutes",
+        "Send \"Welcome Email\" with personalized ROI data",
+        "Wait 3 days",
+        "If no meeting booked → Send service-specific nurture email",
+        "Wait 4 days",
+        "If still no engagement → Send re-engagement email"
+      ]
+    },
+    {
+      "name": "⚡ Workflow 2: High Priority Fast Track",
+      "trigger": "ai_lead_priority = \"high\"",
+      "actions": [
+        "Send internal Slack notification to sales team",
+        "Wait 30 minutes",
+        "Send \"High Priority Fast Track\" email",
+        "Create task for manual follow-up within 24 hours",
+        "Wait 1 day",
+        "If no response → Send personal video message",
+        "Wait 2 days",
+        "If still no response → Direct phone call task"
+      ]
+    },
+    {
+      "name": "🤖 Workflow 3: AI Chatbot Nurture Sequence",
+      "trigger": "ai_recommended_service = \"ai_chatbot\"",
+      "actions": [
+        "Wait 2 days after initial contact",
+        "Send \"AI Chatbot Value Nurture\" email",
+        "Wait 5 days",
+        "Send case study: Tourism Bot success story",
+        "Wait 4 days",
+        "Send ROI calculator tool",
+        "Wait 7 days",
+        "Send \"Last chance to chat\" re-engagement"
+      ]
+    },
+    {
+      "name": "📊 Workflow 4: Business Intelligence Nurture",
+      "trigger": "ai_recommended_service = \"business_intelligence\"",
+      "actions": [
+        "Wait 2 days",
+        "Send \"BI Value Nurture\" email",
+        "Wait 5 days",
+        "Send dashboard demo video",
+        "Wait 4 days",
+        "Send data audit offer",
+        "Wait 7 days",
+        "Send final value proposition"
+      ]
+    },
+    {
+      "name": "🔗 Workflow 5: System Integration Nurture",
+      "trigger": "ai_recommended_service = \"system_integration\"",
+      "actions": [
+        "Wait 2 days",
+        "Send \"Integration Value Nurture\" email",
+        "Wait 5 days",
+        "Send integration mapping guide",
+        "Wait 4 days",
+        "Send time-savings calculator",
+        "Wait 7 days",
+        "Send re-engagement offer"
+      ]
+    },
+    {
+      "name": "👔 Workflow 6: Fractional CTO Nurture",
+      "trigger": "ai_recommended_service = \"fractional_cto\"",
+      "actions": [
+        "Wait 2 days",
+        "Send \"Fractional CTO Value\" email",
+        "Wait 5 days",
+        "Send tech stack audit offer",
+        "Wait 4 days",
+        "Send cost savings calculator",
+        "Wait 7 days",
+        "Send competitive analysis: CTO vs. consultants"
+      ]
+    },
+    {
+      "name": "💰 Workflow 7: High ROI Opportunity Alert",
+      "trigger": "ai_annual_savings > 25000 OR ai_roi_percentage > 200",
+      "actions": [
+        "Send immediate internal alert",
+        "Create high-value opportunity deal",
+        "Assign to senior sales rep",
+        "Send personalized outreach within 2 hours",
+        "Schedule follow-up tasks at 1 day, 3 days, 7 days"
+      ]
+    },
+    {
+      "name": "📅 Workflow 8: Meeting Booked Follow-up",
+      "trigger": "Meeting booked via HubSpot link",
+      "actions": [
+        "Immediately send confirmation email with prep guide",
+        "Wait until 1 day before meeting",
+        "Send reminder email with Zoom link",
+        "Wait until 1 hour before meeting",
+        "Send SMS reminder (if phone number exists)",
+        "After meeting: Wait 1 hour",
+        "Send thank you email + proposal (if applicable)"
+      ]
+    },
+    {
+      "name": "❄️ Workflow 9: Cold Lead Re-engagement",
+      "trigger": "No activity for 14 days + never booked meeting",
+      "actions": [
+        "Send \"Did I lose you?\" email",
+        "Wait 5 days",
+        "If opened but no reply → Send limited-time offer",
+        "Wait 5 days",
+        "If still no engagement → Send final \"breakup\" email",
+        "If no response → Mark as \"Not interested\" and suppress from automation"
+      ]
+    },
+    {
+      "name": "🎯 Workflow 10: Post-Meeting Conversion",
+      "trigger": "Meeting completed + no deal created",
+      "actions": [
+        "Wait 2 hours",
+        "Send thank you + recap email",
+        "Wait 1 day",
+        "Send proposal/next steps",
+        "Wait 3 days",
+        "Send \"Any questions?\" check-in",
+        "Wait 4 days",
+        "Send social proof (testimonials)",
+        "Wait 5 days",
+        "Send final decision prompt"
+      ]
+    }
+  ],
+  "summary": {
+    "totalTemplates": 8,
+    "totalWorkflows": 10,
+    "requiredHubSpotTier": "Marketing Hub Professional or higher"
+  }
+}
