@@ -1122,25 +1122,33 @@ function detectDemoRequest(message) {
   return 'generic';
 }
 
-// 🤖 PHASE 3 - Hawaiian Pidgin Mode: Detect if user wants pidgin mode
-function detectPidginRequest(message) {
+// 🤖 PHASE 3 - Language Mode: Detect language preference
+function detectLanguageRequest(message) {
   const lowerMessage = message.toLowerCase();
 
   const pidginKeywords = [
     'talk pidgin', 'speak pidgin', 'pidgin mode', 'talk local', 'speak local',
-    'talk story', 'talk like local', 'speak hawaiian pidgin', 'use pidgin',
-    'can talk pidgin'
+    'talk story', 'talk like local', 'speak hawaiian pidgin', 'use pidgin'
+  ];
+
+  const oleloKeywords = [
+    'talk hawaiian', 'speak hawaiian', 'hawaiian language', 'olelo hawaii',
+    'ʻōlelo hawaiʻi', 'olelo mode', 'hawaiian mode', 'use hawaiian'
   ];
 
   const hasPidginKeyword = pidginKeywords.some(keyword => lowerMessage.includes(keyword));
+  const hasOleloKeyword = oleloKeywords.some(keyword => lowerMessage.includes(keyword));
 
-  // Check for exit pidgin mode
-  if (lowerMessage.includes('exit pidgin') || lowerMessage.includes('stop pidgin') ||
+  // Check for English mode
+  if (lowerMessage.includes('speak english') || lowerMessage.includes('english mode') ||
       lowerMessage.includes('professional mode') || lowerMessage.includes('standard mode')) {
-    return 'exit';
+    return 'english';
   }
 
-  return hasPidginKeyword ? 'enter' : null;
+  if (hasOleloKeyword) return 'olelo';
+  if (hasPidginKeyword) return 'pidgin';
+
+  return null;
 }
 
 // Get Hawaiian Pidgin mode instructions
@@ -1181,6 +1189,55 @@ Standard: "We have a lot of experience with that."
 Pidgin: "We get choke experience wit dat kine stuff, brah."
 
 The user can exit pidgin mode by saying "exit pidgin mode" or "professional mode".`;
+}
+
+// Get ʻŌlelo Hawaiʻi (Hawaiian Language) mode instructions
+function getOleloHawaiiInstructions() {
+  return `[ʻŌLELO HAWAIʻI MODE ACTIVATED]
+
+You are now speaking in ʻŌlelo Hawaiʻi (Hawaiian language). Use proper Hawaiian orthography with ʻokina and kahakō while maintaining professionalism.
+
+HAWAIIAN LANGUAGE GUIDELINES:
+• Use proper Hawaiian spelling with ʻokina (ʻ) and kahakō (ā, ē, ī, ō, ū)
+• "Aloha" for greetings (hello/goodbye/love)
+• "Mahalo" for thank you
+• "ʻAe" for yes, "ʻAʻole" for no
+• "E komo mai" for welcome
+• "A hui hou" for until we meet again
+• "Pehea ʻoe?" for how are you
+• "Maikaʻi" for good/well
+• "Kōkua" for help/assistance
+• "Hana" for work
+• "ʻOhana" for family
+• "Mālama" for care/protect/preserve
+
+COMMON BUSINESS PHRASES:
+• "Hana ʻenehana" for business/enterprise
+• "Hoʻolako" for technology
+• "Kālā" for money
+• "Mākeke" for market
+• "Hana waihona ʻikepili" for database
+• "Pūnaewele" for internet/website
+• "ʻAʻohe hana nui ke alu ʻia" - No task is too big when done together
+
+KEEP IT PROFESSIONAL:
+• Mix Hawaiian with English when explaining complex tech concepts
+• Use Hawaiian for greetings, common phrases, and cultural references
+• Provide clear technical advice
+• Maintain the helpful, consultative approach
+• Be respectful of the language and culture
+
+EXAMPLE RESPONSES:
+English: "Hello! How can I help you today?"
+ʻŌlelo Hawaiʻi: "Aloha! Pehea au e kōkua aku iā ʻoe i kēia lā?"
+
+English: "Thank you for sharing that information."
+ʻŌlelo Hawaiʻi: "Mahalo nui loa no kēlā ʻike. That helps me understand your business needs better."
+
+English: "We can help improve your business operations."
+ʻŌlelo Hawaiʻi: "Hiki iā mākou ke kōkua i ka hoʻomaikaʻi ʻana o kāu hana ʻenehana."
+
+The user can exit Hawaiian mode by saying "speak english" or "english mode".`;
 }
 
 // Get demo content for specific service
@@ -1537,10 +1594,11 @@ function generateQuickReplies(context, botResponse) {
     ];
   }
 
-  // 🤖 PHASE 3 - Hawaiian Pidgin Mode: Include pidgin toggle in suggestions
-  const pidginToggle = context.pidginMode
-    ? "Exit pidgin mode"
-    : "Talk pidgin";
+  // 🤖 PHASE 3 - Language Mode: Cycle through English → Pidgin → ʻŌlelo Hawaiʻi
+  const languageMode = context.languageMode || 'english';
+  const languageToggle = languageMode === 'english' ? "Talk pidgin" :
+                         languageMode === 'pidgin' ? "ʻŌlelo Hawaiʻi" :
+                         "English";
 
   // Check for escalation
   if (context.escalationRequested) {
@@ -1548,7 +1606,7 @@ function generateQuickReplies(context, botResponse) {
       "Email: reno@lenilani.com",
       "Call: (808) 766-1164",
       "Continue with AI assistant",
-      pidginToggle
+      languageToggle
     ];
   }
 
@@ -1580,35 +1638,35 @@ function generateQuickReplies(context, botResponse) {
         "We need faster response times",
         "Too many repetitive questions",
         "Want to capture more leads",
-        pidginToggle
+        languageToggle
       ];
     } else if (recommendedService === 'Business Intelligence' || allMessages.includes('data') || allMessages.includes('spreadsheet') || allMessages.includes('report')) {
       return [
         "We're drowning in spreadsheets",
         "Need real-time insights",
         "Want automated reporting",
-        pidginToggle
+        languageToggle
       ];
     } else if (recommendedService === 'System Integration' || allMessages.includes('multiple') || allMessages.includes('platform') || allMessages.includes('tools')) {
       return [
         "Too many disconnected tools",
         "Manual data entry is killing us",
         "Need systems to talk to each other",
-        pidginToggle
+        languageToggle
       ];
     } else if (recommendedService === 'Fractional CTO' || allMessages.includes('strategy') || allMessages.includes('technology') || allMessages.includes('roadmap')) {
       return [
         "Need technology strategy",
         "Don't know what to build vs buy",
         "Want a tech roadmap",
-        pidginToggle
+        languageToggle
       ];
     } else if (recommendedService === 'Marketing Automation' || allMessages.includes('marketing') || allMessages.includes('hubspot') || allMessages.includes('leads')) {
       return [
         "Lead generation is slow",
         "Manual marketing tasks",
         "Need better lead nurturing",
-        pidginToggle
+        languageToggle
       ];
     } else {
       // Generic business challenges
@@ -1616,7 +1674,7 @@ function generateQuickReplies(context, botResponse) {
         "We're wasting too much time",
         "Processes are inefficient",
         "Need to scale operations",
-        pidginToggle
+        languageToggle
       ];
     }
   }
@@ -1627,7 +1685,7 @@ function generateQuickReplies(context, botResponse) {
       "Tell me more about solutions",
       "How does this work?",
       "What's the cost?",
-      pidginToggle
+      languageToggle
     ];
   }
 
@@ -1637,7 +1695,7 @@ function generateQuickReplies(context, botResponse) {
       "I'd like to learn more",
       "Send me some information",
       "Let's schedule a call",
-      pidginToggle
+      languageToggle
     ];
   }
 
@@ -1646,7 +1704,7 @@ function generateQuickReplies(context, botResponse) {
     "Tell me more",
     "How can you help?",
     "What's involved?",
-    pidginToggle
+    languageToggle
   ];
 }
 
@@ -2649,7 +2707,7 @@ app.post('/chat', chatLimiter, async (req, res) => {
         leadScore: 0,
         demoMode: false, // 🤖 PHASE 3 - Demo Request Feature
         demoService: null, // 🤖 PHASE 3 - Demo Request Feature
-        pidginMode: false // 🤖 PHASE 3 - Hawaiian Pidgin Mode
+        languageMode: 'english' // 🤖 PHASE 3 - Hawaiian Pidgin Mode
       });
 
       // 🤖 PHASE 3 - Analytics: Track new conversation
@@ -2758,21 +2816,54 @@ app.post('/chat', chatLimiter, async (req, res) => {
       }
     }
 
-    // 🤖 PHASE 3 - Hawaiian Pidgin Mode: Check for pidgin mode request
-    const pidginRequest = detectPidginRequest(message);
-    if (pidginRequest === 'enter') {
-      context.pidginMode = true;
-      console.log('🌺 Hawaiian Pidgin mode activated');
+    // 🤖 PHASE 3 - Language Mode: Check for language toggle
+    const languageRequest = detectLanguageRequest(message);
+    if (languageRequest) {
+      if (languageRequest === 'english') {
+        context.languageMode = 'english';
+        console.log('🇺🇸 Switched to English mode');
+      } else if (languageRequest === 'pidgin') {
+        context.languageMode = 'pidgin';
+        console.log('🌺 Switched to Hawaiian Pidgin mode');
+        // Track pidgin mode activation
+        if (!context.pidginActivated) {
+          analyticsData.pidginModeActivations++;
+          context.pidginActivated = true;
+          saveAnalytics();
+        }
+      } else if (languageRequest === 'olelo') {
+        context.languageMode = 'olelo';
+        console.log('🌺 Switched to ʻŌlelo Hawaiʻi mode');
+        // Track Hawaiian language activation
+        if (!context.oleloActivated) {
+          analyticsData.oleloModeActivations = (analyticsData.oleloModeActivations || 0) + 1;
+          context.oleloActivated = true;
+          saveAnalytics();
+        }
+      }
+    }
 
-      // 🤖 PHASE 3 - Analytics: Track pidgin mode activation
+    // Also check for language toggle button clicks ("Talk pidgin", "ʻŌlelo Hawaiʻi", "English")
+    const lowerMessage = message.toLowerCase();
+    if (lowerMessage === 'talk pidgin' || lowerMessage === 'pidgin') {
+      context.languageMode = 'pidgin';
+      console.log('🌺 Switched to Pidgin mode via button');
       if (!context.pidginActivated) {
         analyticsData.pidginModeActivations++;
         context.pidginActivated = true;
         saveAnalytics();
       }
-    } else if (pidginRequest === 'exit') {
-      context.pidginMode = false;
-      console.log('🌺 Exited Hawaiian Pidgin mode');
+    } else if (lowerMessage === 'ʻōlelo hawaiʻi' || lowerMessage === 'olelo hawaii' || message === 'ʻŌlelo Hawaiʻi') {
+      context.languageMode = 'olelo';
+      console.log('🌺 Switched to ʻŌlelo Hawaiʻi mode via button');
+      if (!context.oleloActivated) {
+        analyticsData.oleloModeActivations = (analyticsData.oleloModeActivations || 0) + 1;
+        context.oleloActivated = true;
+        saveAnalytics();
+      }
+    } else if (lowerMessage === 'english') {
+      context.languageMode = 'english';
+      console.log('🇺🇸 Switched to English mode via button');
     }
 
     // Check for escalation request
@@ -2826,10 +2917,14 @@ app.post('/chat', chatLimiter, async (req, res) => {
       enhancedMessage += `\n\n[DEMO MODE ACTIVE - Present this demo content to the user:\n\n${demoContent}\n\nYou are showcasing the ${context.demoService} service. Keep the conversation focused on this demo. The user can exit demo mode by saying "exit demo mode".]`;
     }
 
-    // 🤖 PHASE 3 - Hawaiian Pidgin Mode: Inject pidgin instructions if active
-    if (context.pidginMode) {
+    // 🤖 PHASE 3 - Language Mode: Inject language-specific instructions
+    const languageMode = context.languageMode || 'english';
+    if (languageMode === 'pidgin') {
       const pidginInstructions = getPidginModeInstructions();
       enhancedMessage += `\n\n${pidginInstructions}`;
+    } else if (languageMode === 'olelo') {
+      const oleloInstructions = getOleloHawaiiInstructions();
+      enhancedMessage += `\n\n${oleloInstructions}`;
     }
 
     // Add ROI calculation context if available
