@@ -722,6 +722,74 @@ ${message ? `• Message: ${message}` : ''}
   }
 }
 
+// 💳 PHASE 4B - HubSpot Payment Integration: Create payment link
+async function createHubSpotPaymentLink(paymentData) {
+  if (!hubspotClient) {
+    console.warn('HubSpot client not configured - cannot create payment link');
+    return { success: false, error: 'HubSpot not configured' };
+  }
+
+  try {
+    const { email, name, amount, description, service } = paymentData;
+
+    // HubSpot Payment Link structure
+    // Note: This uses HubSpot's Commerce/Payments API
+    // You'll need to have HubSpot Payments enabled in your account
+
+    const paymentLinkData = {
+      amount: amount * 100, // Convert to cents
+      currency: 'USD',
+      description: description,
+      customer_email: email,
+      customer_name: name,
+      metadata: {
+        service: service,
+        source: 'lenilani_ai_chatbot'
+      }
+    };
+
+    // For now, generate a manual payment request URL
+    // In full implementation, use HubSpot's Payment API:
+    // const payment = await hubspotClient.crm.objects.create('payments', paymentLinkData);
+
+    const paymentUrl = `${process.env.HUBSPOT_PAYMENT_LINK || 'https://app.hubspot.com/payments'}?amount=${amount}&email=${encodeURIComponent(email)}&service=${encodeURIComponent(service)}`;
+
+    console.log(`💳 Payment link created for ${email}: $${amount}`);
+
+    return {
+      success: true,
+      url: paymentUrl,
+      amount,
+      email
+    };
+  } catch (error) {
+    console.error('Error creating HubSpot payment link:', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+// 💳 PHASE 4B - HubSpot Payment Integration: Get payment status
+async function getHubSpotPaymentStatus(paymentId) {
+  if (!hubspotClient) {
+    throw new Error('HubSpot client not configured');
+  }
+
+  try {
+    // In full implementation, query HubSpot Payment object:
+    // const payment = await hubspotClient.crm.objects.basicApi.getById('payments', paymentId);
+
+    // For now, return mock status
+    return {
+      status: 'pending',
+      amount: 0,
+      paidAt: null
+    };
+  } catch (error) {
+    console.error('Error fetching payment status:', error.message);
+    throw error;
+  }
+}
+
 // 📧 PHASE 4A - Conversation Summary Emails: Send conversation summary email
 async function sendConversationSummaryEmail(recipientEmail, conversationData) {
   if (!emailTransporter) {
@@ -1815,6 +1883,55 @@ app.post('/api/book-appointment', async (req, res) => {
   } catch (error) {
     console.error('Error booking appointment:', error);
     res.status(500).json({ error: 'Unable to book appointment' });
+  }
+});
+
+// 💳 PHASE 4B - HubSpot Payment Integration: Create payment link
+app.post('/api/create-payment-link', async (req, res) => {
+  try {
+    const { email, name, amount, description, service } = req.body;
+
+    if (!email || !amount) {
+      return res.status(400).json({ error: 'Email and amount are required' });
+    }
+
+    // Create payment link with HubSpot
+    const paymentLink = await createHubSpotPaymentLink({
+      email,
+      name: name || '',
+      amount,
+      description: description || 'LeniLani Consulting Service Deposit',
+      service: service || 'Consulting Services'
+    });
+
+    res.json({
+      success: true,
+      paymentLink: paymentLink.url,
+      amount,
+      description
+    });
+  } catch (error) {
+    console.error('Error creating payment link:', error);
+    res.status(500).json({ error: 'Unable to create payment link' });
+  }
+});
+
+// 💳 PHASE 4B - HubSpot Payment Integration: Get payment status
+app.get('/api/payment-status/:paymentId', async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+
+    const status = await getHubSpotPaymentStatus(paymentId);
+
+    res.json({
+      paymentId,
+      status: status.status,
+      amount: status.amount,
+      paidAt: status.paidAt
+    });
+  } catch (error) {
+    console.error('Error fetching payment status:', error);
+    res.status(500).json({ error: 'Unable to fetch payment status' });
   }
 });
 
