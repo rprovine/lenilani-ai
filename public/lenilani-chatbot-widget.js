@@ -431,9 +431,9 @@
         }
 
         .lenilani-action-btn {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 10px;
+            padding: 8px 14px;
+            border-radius: 18px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s;
@@ -578,9 +578,9 @@
                     <div class="lenilani-language-selector">
                         <span class="lenilani-language-label">Lang:</span>
                         <select class="lenilani-language-select" id="lenilani-language">
-                            <option value="english">EN</option>
+                            <option value="english">English</option>
                             <option value="pidgin">Pidgin</option>
-                            <option value="hawaiian">HI</option>
+                            <option value="hawaiian">ʻŌlelo</option>
                         </select>
                     </div>
                 </div>
