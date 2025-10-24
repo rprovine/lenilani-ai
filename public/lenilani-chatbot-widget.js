@@ -688,6 +688,38 @@
         messageDiv.textContent = text;
         messagesContainer.appendChild(messageDiv);
 
+        // Check if bot message mentions scheduling/booking and add a button
+        if (sender === 'bot') {
+            const schedulingKeywords = ['schedule', 'booking', 'consultation', 'appointment', 'meeting', 'calendar'];
+            const containsScheduling = schedulingKeywords.some(keyword =>
+                text.toLowerCase().includes(keyword)
+            );
+
+            if (containsScheduling) {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.marginTop = '12px';
+                buttonContainer.innerHTML = `
+                    <a href="https://meetings-na2.hubspot.com/reno?uuid=ee86f3dc-1bde-4684-8460-c998aef13e65"
+                       target="_blank"
+                       style="display: inline-block;
+                              padding: 10px 20px;
+                              background: linear-gradient(135deg, #0d7377 0%, #14919d 100%);
+                              color: white;
+                              text-decoration: none;
+                              border-radius: 6px;
+                              font-weight: 600;
+                              font-size: 14px;
+                              box-shadow: 0 4px 12px rgba(13, 115, 119, 0.3);
+                              transition: transform 0.2s;"
+                       onmouseover="this.style.transform='scale(1.05)'"
+                       onmouseout="this.style.transform='scale(1)'">
+                        📅 Book Your Free Consultation Now
+                    </a>
+                `;
+                messageDiv.appendChild(buttonContainer);
+            }
+        }
+
         // Add suggestions
         if (sender === 'bot' && suggestions && suggestions.length > 0) {
             const suggestionsContainer = document.createElement('div');

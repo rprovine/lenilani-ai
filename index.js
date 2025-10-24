@@ -457,6 +457,15 @@ Exchange 4 - Once you have email, introduce Reno warmly and professionally:
 - "The booking form will capture your details - shall I share Reno's calendar?"
 - Keep it natural, warm, and Reno-focused
 
+**CRITICAL - When user says YES to scheduling**:
+Once they agree (e.g., "Yes", "Sure", "I'd love to", "Let's do it"), IMMEDIATELY confirm and use trigger words:
+- "Perfect! You can book a consultation using the button below to choose a time that works for you."
+- "Excellent! The booking button below will let you schedule your consultation directly on Reno's calendar."
+- "Great! Use the consultation booking link below to grab a time slot."
+- MUST use words like "book", "booking", "schedule", "consultation", or "meeting" to trigger the button
+- DO NOT ask "would you like to book?" again - they already said yes!
+- Give ONE confirmation response, then move on to other topics if they continue chatting
+
 Remember: You're conducting a sophisticated technical and business consultation while intelligently identifying and capturing qualified prospects. Every conversation should demonstrate why LeniLani is the right choice AND naturally progress toward a business relationship.`;
 
   const prompt = ChatPromptTemplate.fromMessages([
