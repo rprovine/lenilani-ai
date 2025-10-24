@@ -795,6 +795,25 @@
     languageSelect.addEventListener('change', (e) => {
         currentLanguageMode = e.target.value;
         console.log(`Language changed to: ${currentLanguageMode}`);
+
+        // Add a system message to indicate language change
+        const languageNames = {
+            'english': 'English',
+            'pidgin': 'Hawaiian Pidgin',
+            'olelo': 'ʻŌlelo Hawaiʻi'
+        };
+
+        const systemMessage = document.createElement('div');
+        systemMessage.style.textAlign = 'center';
+        systemMessage.style.padding = '10px';
+        systemMessage.style.color = '#6c757d';
+        systemMessage.style.fontSize = '12px';
+        systemMessage.style.fontStyle = 'italic';
+        systemMessage.textContent = `Language changed to ${languageNames[currentLanguageMode]}`;
+        messagesContainer.appendChild(systemMessage);
+
+        // Scroll to show the message
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
 
     // Clear chat
