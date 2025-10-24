@@ -349,6 +349,176 @@
             font-weight: 500;
         }
 
+        /* Social proof banner */
+        .lenilani-social-proof {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-bottom: 1px solid #bae6fd;
+            padding: 10px 15px;
+            font-size: 11px;
+            color: #0369a1;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .lenilani-social-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .lenilani-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .lenilani-stat-item strong {
+            color: #075985;
+        }
+
+        /* Language selector */
+        .lenilani-language-selector {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .lenilani-language-label {
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .lenilani-language-select {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .lenilani-language-select option {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        /* Actions footer */
+        .lenilani-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+            background: white;
+        }
+
+        .lenilani-action-btn {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: none;
+        }
+
+        .lenilani-human-btn {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .lenilani-human-btn:hover {
+            background: #27ae60;
+            transform: scale(1.05);
+        }
+
+        .lenilani-clear-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .lenilani-clear-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        /* Escalation card */
+        .lenilani-escalation {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .lenilani-escalation h4 {
+            color: #856404;
+            margin: 0 0 8px 0;
+            font-size: 14px;
+        }
+
+        .lenilani-escalation p {
+            color: #856404;
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .lenilani-contact-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .lenilani-contact-btn {
+            padding: 8px 14px;
+            background: #ffc107;
+            color: #856404;
+            border: none;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .lenilani-contact-btn:hover {
+            background: #ffb300;
+            transform: translateY(-2px);
+        }
+
+        /* Response time notice */
+        .lenilani-response-notice {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #4caf50;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+        }
+
+        .lenilani-response-notice p {
+            margin: 0;
+            color: #1b5e20;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .lenilani-response-notice strong {
+            font-weight: 700;
+            color: #1b5e20;
+        }
+
         /* Notification badge */
         .lenilani-badge {
             position: absolute;
@@ -394,8 +564,32 @@
                 <div class="lenilani-chat-header-content">
                     <h3>LeniLani AI</h3>
                     <p>AI & Technology Solutions</p>
+                    <div class="lenilani-language-selector">
+                        <span class="lenilani-language-label">Language:</span>
+                        <select class="lenilani-language-select" id="lenilani-language">
+                            <option value="english">English</option>
+                            <option value="pidgin">Hawaiian Pidgin</option>
+                            <option value="hawaiian">ʻŌlelo Hawaiʻi</option>
+                        </select>
+                    </div>
                 </div>
                 <button class="lenilani-close-btn" aria-label="Close chat">×</button>
+            </div>
+            <div class="lenilani-social-proof">
+                <div class="lenilani-social-stats">
+                    <div class="lenilani-stat-item">
+                        <span>✅</span>
+                        <span><strong>10+</strong> Hawaii Businesses</span>
+                    </div>
+                    <div class="lenilani-stat-item">
+                        <span>⚡</span>
+                        <span><strong>&lt;2 min</strong> Response</span>
+                    </div>
+                    <div class="lenilani-stat-item">
+                        <span>🌟</span>
+                        <span><strong>30+ Years</strong> Experience</span>
+                    </div>
+                </div>
             </div>
             <div class="lenilani-quickstart" id="lenilani-quickstart">
                 <div class="lenilani-quickstart-title">Quick Start</div>
@@ -428,6 +622,11 @@
                 <span></span>
                 <span></span>
             </div>
+            <div class="lenilani-actions">
+                <button class="lenilani-action-btn lenilani-clear-btn" id="lenilani-clear">Clear Chat</button>
+                <button class="lenilani-action-btn lenilani-human-btn" id="lenilani-human">👤 Talk to Human</button>
+                <a href="${API_BASE_URL}/stats" target="_blank" class="lenilani-action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; text-decoration: none;">📊 Live Stats</a>
+            </div>
             <div class="lenilani-chat-input">
                 <input
                     type="text"
@@ -450,6 +649,9 @@
     const sendButton = document.getElementById('lenilani-send');
     const typingIndicator = document.getElementById('lenilani-typing');
     const quickstart = document.getElementById('lenilani-quickstart');
+    const languageSelect = document.getElementById('lenilani-language');
+    const clearButton = document.getElementById('lenilani-clear');
+    const humanButton = document.getElementById('lenilani-human');
 
     // Toggle chat
     function toggleChat() {
@@ -594,6 +796,84 @@
             sendMessage(message);
         });
     });
+
+    // Language selector
+    languageSelect.addEventListener('change', (e) => {
+        currentLanguageMode = e.target.value;
+        console.log(`Language changed to: ${currentLanguageMode}`);
+    });
+
+    // Clear chat
+    async function clearChat() {
+        try {
+            await fetch(`${API_BASE_URL}/reset`, {
+                method: 'POST',
+            });
+
+            messagesContainer.innerHTML = `
+                <div class="lenilani-message lenilani-bot-message">
+                    Aloha! 👋 I'm here to help you explore how AI and tech can help your business. What brings you here today?
+                </div>
+            `;
+
+            // Show quickstart buttons again
+            quickstart.style.display = 'block';
+        } catch (error) {
+            console.error('Error clearing chat:', error);
+        }
+    }
+
+    // Request human help
+    function requestHumanHelp() {
+        showEscalationCard();
+    }
+
+    // Show escalation card
+    function showEscalationCard() {
+        // Remove any existing escalation card and notice
+        const existingEscalation = messagesContainer.querySelector('.lenilani-escalation');
+        const existingNotice = messagesContainer.querySelector('.lenilani-response-notice');
+        if (existingEscalation) existingEscalation.remove();
+        if (existingNotice) existingNotice.remove();
+
+        // Add response time notice
+        const noticeDiv = document.createElement('div');
+        noticeDiv.classList.add('lenilani-response-notice');
+        noticeDiv.innerHTML = `
+            <p>⚡ <strong>5-Minute Response Guarantee:</strong> Reno personally responds to all inquiries within 5 minutes during business hours (Mon-Fri, 9AM-5PM HST)</p>
+        `;
+        messagesContainer.appendChild(noticeDiv);
+
+        // Add escalation card
+        const escalationCard = document.createElement('div');
+        escalationCard.classList.add('lenilani-escalation');
+        escalationCard.innerHTML = `
+            <h4>👤 Connect with Reno</h4>
+            <p>Aloha! Reno would love to help you personally. Here's how you can reach him:</p>
+            <div class="lenilani-contact-options">
+                <a href="mailto:reno@lenilani.com" class="lenilani-contact-btn">
+                    📧 Email Reno
+                </a>
+                <a href="tel:+18087661164" class="lenilani-contact-btn">
+                    📞 Call (808) 766-1164
+                </a>
+                <button class="lenilani-contact-btn" onclick="this.closest('.lenilani-escalation').remove(); document.querySelector('.lenilani-response-notice').remove();">
+                    ✕ Continue with AI
+                </button>
+            </div>
+        `;
+
+        messagesContainer.appendChild(escalationCard);
+
+        // Smooth scroll
+        setTimeout(() => {
+            noticeDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+    }
+
+    // Event listeners for action buttons
+    clearButton.addEventListener('click', clearChat);
+    humanButton.addEventListener('click', requestHumanHelp);
 
     console.log('🤖 LeniLani AI Chatbot Widget loaded successfully');
 })();
