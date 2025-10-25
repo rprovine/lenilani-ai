@@ -520,22 +520,31 @@
         }
         
         @media (max-width: 768px) {
+            /* Fix mobile overflow - reduce padding */
+            .container {
+                padding: 0 10px;
+            }
+
+            .hero {
+                padding: 60px 10px;
+            }
+
             h1 {
                 font-size: 36px;
             }
-            
+
             .hero-subtitle {
                 font-size: 20px;
             }
-            
+
             .pricing-cards {
                 grid-template-columns: 1fr;
             }
-            
+
             .pricing-card.featured {
                 transform: none;
             }
-            
+
             .demo-iframe {
                 height: 600px;
             }
@@ -579,18 +588,36 @@
         }
         
         @media (max-width: 480px) {
+            /* Even smaller screens - extra padding reduction */
+            .container {
+                padding: 0 8px;
+            }
+
+            .hero {
+                padding: 40px 8px;
+                min-height: 600px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .hero-subtitle {
+                font-size: 18px;
+            }
+
             /* Even smaller screens */
             .comparison-table table {
                 min-width: 450px;
                 font-size: 13px;
             }
-            
+
             .comparison-table th,
             .comparison-table td {
                 padding: 10px 8px;
                 font-size: 13px;
             }
-            
+
             .check,
             .cross {
                 font-size: 18px;
