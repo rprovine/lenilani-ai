@@ -83,15 +83,21 @@
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                max-width: 100% !important;
-                max-height: 100% !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: -webkit-fill-available !important; /* iOS fix */
+                max-width: 100vw !important;
+                max-height: 100vh !important;
+                max-height: -webkit-fill-available !important; /* iOS fix */
+                min-width: 0 !important;
+                min-height: 0 !important;
                 border-radius: 0 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 box-sizing: border-box !important;
-                overflow: hidden !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
             }
 
             #lenilani-chatbot-container {
@@ -672,13 +678,19 @@
             if (isOpen) {
                 document.body.style.overflow = 'hidden';
                 document.body.style.position = 'fixed';
-                document.body.style.width = '100%';
-                document.body.style.height = '100%';
+                document.body.style.width = '100vw';
+                document.body.style.height = '100vh';
+                document.body.style.top = '0';
+                document.body.style.left = '0';
+                document.documentElement.style.overflow = 'hidden';
             } else {
                 document.body.style.overflow = '';
                 document.body.style.position = '';
                 document.body.style.width = '';
                 document.body.style.height = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.documentElement.style.overflow = '';
             }
         }
 
