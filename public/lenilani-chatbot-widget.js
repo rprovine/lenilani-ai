@@ -76,17 +76,17 @@
         }
 
         @media (max-width: 768px) {
-            /* Ensure widget fills viewport - use fixed positioning */
+            /* Ensure widget fills viewport - use percentage widths instead of vw to avoid iOS scrollbar issues */
             #lenilani-chat-window {
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
-                width: 100vw !important;
+                width: 100% !important;
                 height: 100vh !important;
                 height: -webkit-fill-available !important; /* iOS fix */
-                max-width: 100vw !important;
+                max-width: none !important;
                 max-height: 100vh !important;
                 max-height: -webkit-fill-available !important; /* iOS fix */
                 min-width: 0 !important;
@@ -125,7 +125,6 @@
             .lenilani-chat-messages,
             .lenilani-chat-input,
             .lenilani-actions {
-                max-width: 100vw !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
             }
@@ -703,8 +702,8 @@
             if (isOpen) {
                 document.body.style.overflow = 'hidden';
                 document.body.style.position = 'fixed';
-                document.body.style.width = '100vw';
-                document.body.style.height = '100vh';
+                document.body.style.width = '100%';
+                document.body.style.height = '100%';
                 document.body.style.top = '0';
                 document.body.style.left = '0';
                 document.documentElement.style.overflow = 'hidden';
