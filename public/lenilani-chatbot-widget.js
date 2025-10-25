@@ -111,9 +111,34 @@
                 font-size: 24px;
             }
 
-            /* Ensure all child elements use border-box */
-            #lenilani-chat-window * {
-                box-sizing: border-box;
+            /* Ensure all child elements use border-box and don't overflow */
+            #lenilani-chat-window *,
+            #lenilani-chat-window *::before,
+            #lenilani-chat-window *::after {
+                box-sizing: border-box !important;
+                max-width: 100% !important;
+            }
+
+            /* Prevent specific elements from causing horizontal overflow */
+            .lenilani-chat-header,
+            .lenilani-quickstart,
+            .lenilani-chat-messages,
+            .lenilani-chat-input,
+            .lenilani-actions {
+                max-width: 100vw !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            /* Constrain header content */
+            .lenilani-chat-header-content {
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
+
+            /* Constrain input field */
+            .lenilani-chat-input input {
+                max-width: calc(100% - 80px) !important;
             }
         }
 
