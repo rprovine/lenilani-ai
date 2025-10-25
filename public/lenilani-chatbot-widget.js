@@ -660,6 +660,9 @@
     const clearButton = document.getElementById('lenilani-clear');
     const humanButton = document.getElementById('lenilani-human');
 
+    // Store original viewport meta tag
+    let originalViewport = null;
+
     // Toggle chat
     function toggleChat() {
         isOpen = !isOpen;
@@ -670,15 +673,37 @@
         // Prevent body scroll on mobile when widget is open
         if (window.innerWidth <= 768) {
             if (isOpen) {
+                // Lock body scroll
                 document.body.style.overflow = 'hidden';
                 document.body.style.position = 'fixed';
                 document.body.style.width = '100%';
                 document.body.style.height = '100%';
+
+                // Fix iOS viewport zoom issue
+                let viewport = document.querySelector('meta[name="viewport"]');
+                if (viewport) {
+                    originalViewport = viewport.getAttribute('content');
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+                } else {
+                    viewport = document.createElement('meta');
+                    viewport.name = 'viewport';
+                    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                    document.head.appendChild(viewport);
+                }
             } else {
+                // Restore body scroll
                 document.body.style.overflow = '';
                 document.body.style.position = '';
                 document.body.style.width = '';
                 document.body.style.height = '';
+
+                // Restore original viewport
+                if (originalViewport) {
+                    let viewport = document.querySelector('meta[name="viewport"]');
+                    if (viewport) {
+                        viewport.setAttribute('content', originalViewport);
+                    }
+                }
             }
         }
 
