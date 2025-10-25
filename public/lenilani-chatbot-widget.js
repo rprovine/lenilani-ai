@@ -76,21 +76,22 @@
         }
 
         @media (max-width: 768px) {
-            /* Ensure widget fills viewport - use percentage widths instead of vw to avoid iOS scrollbar issues */
+            /* Prevent horizontal overflow on page when widget is open */
+            html.lenilani-widget-open,
+            body.lenilani-widget-open {
+                overflow-x: hidden !important;
+                position: fixed !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            /* Ensure widget fills viewport - no width/height needed with inset positioning */
             #lenilani-chat-window {
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
-                width: 100% !important;
-                height: 100vh !important;
-                height: -webkit-fill-available !important; /* iOS fix */
-                max-width: none !important;
-                max-height: 100vh !important;
-                max-height: -webkit-fill-available !important; /* iOS fix */
-                min-width: 0 !important;
-                min-height: 0 !important;
                 border-radius: 0 !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -98,6 +99,7 @@
                 overflow-x: hidden !important;
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch !important;
+                z-index: 999999 !important;
             }
 
             #lenilani-chatbot-container {
@@ -700,21 +702,11 @@
         // Prevent body scroll on mobile when widget is open
         if (window.innerWidth <= 768) {
             if (isOpen) {
-                document.body.style.overflow = 'hidden';
-                document.body.style.position = 'fixed';
-                document.body.style.width = '100%';
-                document.body.style.height = '100%';
-                document.body.style.top = '0';
-                document.body.style.left = '0';
-                document.documentElement.style.overflow = 'hidden';
+                document.documentElement.classList.add('lenilani-widget-open');
+                document.body.classList.add('lenilani-widget-open');
             } else {
-                document.body.style.overflow = '';
-                document.body.style.position = '';
-                document.body.style.width = '';
-                document.body.style.height = '';
-                document.body.style.top = '';
-                document.body.style.left = '';
-                document.documentElement.style.overflow = '';
+                document.documentElement.classList.remove('lenilani-widget-open');
+                document.body.classList.remove('lenilani-widget-open');
             }
         }
 
