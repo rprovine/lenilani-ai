@@ -13,6 +13,7 @@ An advanced AI-powered chatbot and lead qualification system built for LeniLani 
 - **Advanced AI Conversations** - Powered by Anthropic Claude with LangChain framework
 - **Comprehensive Knowledge Base** - Automatically loads verified company information from all LeniLani domains (www.lenilani.com, hawaii.lenilani.com, and all subdomains)
 - **HubSpot Meeting Integration** - Smart booking buttons appear automatically when users ask about scheduling, with direct link to real-time availability
+- **Fully Mobile Responsive** ✅ **iOS & Android** - Optimized fullscreen widget experience on all mobile devices with automatic viewport scaling for iOS
 - **Automatic Lead Capture to HubSpot** ✅ **PRODUCTION READY** - Detects email addresses and automatically creates/updates HubSpot contacts with full conversation tracking and source attribution ("LeniLani AI Chatbot")
   - Lazy initialization for serverless environments (Vercel)
   - Automatic contact creation with email, name, phone, and conversation summary
@@ -102,6 +103,22 @@ langchain-chatbot-lenilani/
 └── DEPLOYMENT.md                  # Deployment instructions
 ```
 
+## 📱 Mobile Responsiveness
+
+The chatbot widget is fully optimized for mobile devices with special handling for iOS:
+
+### Features
+- ✅ **Fullscreen Widget** - Optimized mobile experience on screens ≤ 768px
+- ✅ **iOS Viewport Fix** - Automatic viewport meta tag manipulation prevents zoom issues
+- ✅ **Android Compatibility** - Tested and verified on Android devices
+- ✅ **Body Scroll Locking** - Prevents background scrolling when widget is open
+- ✅ **Touch-Friendly UI** - Optimized button sizes and spacing for mobile
+
+### Technical Implementation
+- **CSS**: Percentage-based widths (`width: 100%`, `height: 100%`) with `position: fixed`
+- **iOS Fix**: Dynamic viewport meta tag sets `initial-scale=1.0` and `maximum-scale=1.0` when widget opens
+- **Restoration**: Original viewport settings restored when widget closes
+
 ## 🛠️ Technology Stack
 
 - **AI Model**: Anthropic Claude (Haiku)
@@ -110,6 +127,7 @@ langchain-chatbot-lenilani/
 - **Memory**: BufferMemory for conversation persistence
 - **Frontend**: Vanilla HTML/CSS/JavaScript with responsive design
 - **Styling**: CSS variables for theme management
+- **Mobile**: iOS & Android optimized with viewport manipulation
 
 ## 💰 Pricing Model
 
