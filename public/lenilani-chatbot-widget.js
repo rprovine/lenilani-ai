@@ -76,18 +76,22 @@
         }
 
         @media (max-width: 768px) {
-            /* Ensure widget fills viewport using inset instead of vw/vh */
+            /* Ensure widget fills viewport - use fixed positioning */
             #lenilani-chat-window {
                 position: fixed !important;
-                inset: 0 !important;
-                width: auto !important;
-                height: auto !important;
-                max-width: none !important;
-                max-height: none !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
                 border-radius: 0 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 box-sizing: border-box !important;
+                overflow: hidden !important;
             }
 
             #lenilani-chatbot-container {
@@ -662,6 +666,21 @@
         chatWindow.classList.toggle('open');
         chatButton.classList.toggle('open');
         chatButton.textContent = isOpen ? '×' : '💬';
+
+        // Prevent body scroll on mobile when widget is open
+        if (window.innerWidth <= 768) {
+            if (isOpen) {
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.height = '100%';
+            } else {
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.height = '';
+            }
+        }
 
         if (isOpen) {
             input.focus();
