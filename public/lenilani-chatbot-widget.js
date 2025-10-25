@@ -76,30 +76,22 @@
         }
 
         @media (max-width: 768px) {
-            /* Prevent horizontal overflow on page when widget is open */
-            html.lenilani-widget-open,
-            body.lenilani-widget-open {
-                overflow-x: hidden !important;
-                position: fixed !important;
-                width: 100% !important;
-                height: 100% !important;
-            }
-
-            /* Ensure widget fills viewport - no width/height needed with inset positioning */
+            /* Ensure widget fills viewport - use percentage units that work on both Android and iOS */
             #lenilani-chat-window {
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
                 border-radius: 0 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 box-sizing: border-box !important;
-                overflow-x: hidden !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-                z-index: 999999 !important;
+                overflow: hidden !important;
             }
 
             #lenilani-chatbot-container {
@@ -113,33 +105,9 @@
                 font-size: 24px;
             }
 
-            /* Ensure all child elements use border-box and don't overflow */
-            #lenilani-chat-window *,
-            #lenilani-chat-window *::before,
-            #lenilani-chat-window *::after {
-                box-sizing: border-box !important;
-                max-width: 100% !important;
-            }
-
-            /* Prevent specific elements from causing horizontal overflow */
-            .lenilani-chat-header,
-            .lenilani-quickstart,
-            .lenilani-chat-messages,
-            .lenilani-chat-input,
-            .lenilani-actions {
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-
-            /* Constrain header content */
-            .lenilani-chat-header-content {
-                max-width: 100% !important;
-                overflow: hidden !important;
-            }
-
-            /* Constrain input field */
-            .lenilani-chat-input input {
-                max-width: calc(100% - 80px) !important;
+            /* Ensure all child elements use border-box */
+            #lenilani-chat-window * {
+                box-sizing: border-box;
             }
         }
 
@@ -702,11 +670,15 @@
         // Prevent body scroll on mobile when widget is open
         if (window.innerWidth <= 768) {
             if (isOpen) {
-                document.documentElement.classList.add('lenilani-widget-open');
-                document.body.classList.add('lenilani-widget-open');
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                document.body.style.height = '100%';
             } else {
-                document.documentElement.classList.remove('lenilani-widget-open');
-                document.body.classList.remove('lenilani-widget-open');
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.height = '';
             }
         }
 
