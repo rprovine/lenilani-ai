@@ -76,20 +76,18 @@
         }
 
         @media (max-width: 768px) {
-            /* Ensure widget fits within viewport - dimensions set by JavaScript */
+            /* Ensure widget fills viewport using inset instead of vw/vh */
             #lenilani-chat-window {
                 position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                bottom: 0 !important;
-                width: 100vw;
-                height: 100vh;
-                max-width: 100vw !important;
-                max-height: 100vh !important;
-                border-radius: 0;
-                margin: 0;
-                box-sizing: border-box;
+                inset: 0 !important;
+                width: auto !important;
+                height: auto !important;
+                max-width: none !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
             }
 
             #lenilani-chatbot-container {
@@ -658,18 +656,6 @@
     const clearButton = document.getElementById('lenilani-clear');
     const humanButton = document.getElementById('lenilani-human');
 
-    // Adjust mobile viewport using JavaScript instead of CSS vh/vw units
-    function adjustMobileViewport() {
-        if (window.innerWidth <= 768) {
-            const chatWindow = document.getElementById('lenilani-chat-window');
-            if (chatWindow && chatWindow.classList.contains('open')) {
-                // Use actual viewport dimensions to avoid mobile browser chrome issues
-                chatWindow.style.height = `${window.innerHeight}px`;
-                chatWindow.style.width = `${window.innerWidth}px`;
-            }
-        }
-    }
-
     // Toggle chat
     function toggleChat() {
         isOpen = !isOpen;
@@ -679,8 +665,6 @@
 
         if (isOpen) {
             input.focus();
-            // Adjust viewport on mobile when opening
-            adjustMobileViewport();
         }
     }
 
@@ -944,10 +928,6 @@
     // Event listeners for action buttons
     clearButton.addEventListener('click', clearChat);
     humanButton.addEventListener('click', requestHumanHelp);
-
-    // Add event listeners for viewport changes on mobile
-    window.addEventListener('resize', adjustMobileViewport);
-    window.addEventListener('orientationchange', adjustMobileViewport);
 
     console.log('🤖 LeniLani AI Chatbot Widget loaded successfully');
 })();
